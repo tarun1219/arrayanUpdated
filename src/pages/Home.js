@@ -3,14 +3,15 @@ import UserSignUp from '../components/UserSignUp'
 import Background from '../components/Background'
 import { Container } from 'react-bootstrap'
 import { AuthProvider } from '../context/AuthContext'
-const Login = () => {
+import { BrowserRouter as Router, Route } from "react-router-dom";
+import Dashboard from '../components/Dashboard'
+const Home = () => {
   return (
     <AuthProvider>
       <Background>
         <Container 
              className="d-flex align-items-center"
-             style={{minHeight: "100vh"}}
-        >
+             style={{minHeight: "100vh"}}>
             <div className="w-100" style={{maxWidth: '400px'}}>
                 <UserSignUp />
             </div>
@@ -20,4 +21,4 @@ const Login = () => {
     </AuthProvider>  
   )
 }
-export default Login; 
+export default Home; 
