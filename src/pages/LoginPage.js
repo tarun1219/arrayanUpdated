@@ -3,8 +3,6 @@ import Login from '../components/Login'
 import Background from '../components/Background'
 import { Container } from 'react-bootstrap'
 import { AuthProvider } from '../context/AuthContext'
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import Dashboard from '../components/Dashboard'
 const LoginPage= () => {
   return (
     <AuthProvider>
