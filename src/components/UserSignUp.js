@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react"
 import { Form, Button, Card, Alert } from "react-bootstrap"
 import { useAuth } from "../context/AuthContext"
 import { Link, useNavigate } from "react-router-dom"
+import { sendRequest } from "../utils/ResDbClient"
+import { GENERATE_KEYS } from "../utils/ResDbApis"
 
 export default function UserSignup() {
   const emailRef = useRef()
@@ -22,7 +24,10 @@ export default function UserSignup() {
     try {
       setError("")
       setLoading(true)
-      await signup(emailRef.current.value, passwordRef.current.value)
+      sendRequest(GENERATE_KEYS).then(res => { 
+        console.log("Generated keys successfully ", res);
+      });
+      await signup(emailRef.current.value, passwordRef.current.value)    
       history.push("/")
     } catch {
       setError("Failed to create an account")
