@@ -7,7 +7,6 @@ import InventoryPage from "./pages/InventoryPage";
 
 function App() {
   return (
-    
       <div>
         <Router>
           <AuthProvider>
