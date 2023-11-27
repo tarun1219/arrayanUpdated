@@ -22,3 +22,12 @@ export const POST_TRANSACTION = (metadata, asset) => `mutation {
   id
   }
 }`;
+
+export const FETCH_INVENTORY = (signerPublicKey) => `query { 
+  getFilteredTransactions(filter: {
+  ownerPublicKey:"${signerPublicKey}"
+  recipientPublicKey:"${signerPublicKey}"
+  }){
+  asset
+  }
+}`;
