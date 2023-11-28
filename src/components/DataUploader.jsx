@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as xlsx from "xlsx";
 import { Form, Card } from "react-bootstrap";
-import { POST_TRANSACTION } from "../utils/ResDbApis";
+import { POST_TRANSACTION, FETCH_INVENTORY } from "../utils/ResDbApis";
 import { sendRequest } from "../utils/ResDbClient";
 
 function DataUploader() {
@@ -13,15 +13,40 @@ function DataUploader() {
 
   //TODO: Remove encryption keys from code
   const metadata = {
-    signerPublicKey: "2Efjkz7BRTY9UxNmNwLCTpUKNywvSw57jGxSF3W8UXcf",
-    signerPrivateKey: "SeWpVh89MHJ94uPpfrTHNDxLj6EQ6qhPifbRfpdsjun",
-    recipientPublicKey: "55W2yfo2V9yrMPNy4B41E6CyWd1Z6jddFHEeuofYxj4J",
+    signerPublicKey: "HvNRQznqrRdCwSKn6R8ZoQE4U3aobQShajK1NShQhGRn",
+    signerPrivateKey: "2QdMTdaNj8mJjduXFAsHieVmcsBcqeWQyW9v891kZEXC",
+    recipientPublicKey: "HvNRQznqrRdCwSKn6R8ZoQE4U3aobQShajK1NShQhGRn",
   };
 
-  const [excelData, setExcelData] = useState(null);
+  const [inventory, setInventory] = useState([]);
   const [error, setError] = useState("");
 
-  const readExcel = (e) => {
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
+  const fetchInventory = async () => {
+    console.log("Fetching inventory...");
+    const query = FETCH_INVENTORY(metadata.signerPublicKey);
+    try {
+      sendRequest(query).then((res) => {
+        if (res && res.data && res.data.getFilteredTransactions) {
+          let json = [];
+          res.data.getFilteredTransactions.forEach((item) => {
+            json.push(JSON.parse(item.asset.replace(/'/g, '"')).data);
+          });
+          setInventory(json);
+          console.log(json);
+        } else {
+          fetchInventory(); // BUG: Temporary fix for the intermittent graphql error
+        }
+      });
+    } catch (error) {
+      console.log("Fetch Inventory error ", error);
+    }
+  };
+
+  const readExcel = async (e) => {
     e.preventDefault();
     let selectedFile = e.target.files[0];
     if (selectedFile && ALLOWED_FILE_TYPES.includes(selectedFile.type)) {
@@ -39,7 +64,7 @@ function DataUploader() {
             console.log("Inventory added successfully ", res);
           });
         });
-        setExcelData(json);
+        fetchInventory();
       };
       reader.readAsArrayBuffer(e.target.files[0]);
     } else {
@@ -60,26 +85,23 @@ function DataUploader() {
           </div>
         )}
 
-        {excelData ? (
+        {inventory.length > 0 ? (
           <div>
-            <div className="w-100 text-center mt-2">
-              Inventory added successfully
-            </div>
             <div className="table-responsive">
               <table className="table">
                 <thead>
                   <tr>
-                    {Object.keys(excelData[0]).map((key) => (
+                    {Object.keys(inventory[0]).map((key) => (
                       <th key={key}>{key}</th>
                     ))}
                   </tr>
                 </thead>
 
                 <tbody>
-                  {excelData.map((individualExcelData, index) => (
+                  {inventory.map((item, index) => (
                     <tr key={index}>
-                      {Object.keys(individualExcelData).map((key) => (
-                        <td key={key}>{individualExcelData[key]}</td>
+                      {Object.keys(item).map((key) => (
+                        <td key={key}>{item[key]}</td>
                       ))}
                     </tr>
                   ))}
@@ -88,7 +110,7 @@ function DataUploader() {
             </div>
           </div>
         ) : (
-          <div className="w-100 text-center mt-2">No File is uploaded yet!</div>
+          <div className="w-100 text-center mt-2">No inventory found!</div>
         )}
       </Card.Body>
     </Card>
