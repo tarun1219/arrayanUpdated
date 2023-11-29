@@ -23,11 +23,19 @@ export const POST_TRANSACTION = (metadata, asset) => `mutation {
   }
 }`;
 
-export const FETCH_INVENTORY = (signerPublicKey) => `query { 
+export const FETCH_TRANSACTION = (signerPublicKey, recipientPublicKey) => `query { 
   getFilteredTransactions(filter: {
   ownerPublicKey:"${signerPublicKey}"
-  recipientPublicKey:"${signerPublicKey}"
+  recipientPublicKey:"${recipientPublicKey}"
   }){
   asset
+  }
+}`;
+
+export const FETCH_PRODUCT = (product) => `query { 
+  getFilteredProductTransactions(filter: {
+		product: "${product}"
+  }){
+    asset
   }
 }`;

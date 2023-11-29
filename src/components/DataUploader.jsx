@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import * as xlsx from "xlsx";
-import { Form, Card } from "react-bootstrap";
-import { POST_TRANSACTION, FETCH_INVENTORY } from "../utils/ResDbApis";
+import {
+  Input,
+  Row,
+  Col,
+  Button,
+  Card,
+  CardBody,
+  Container,
+} from "reactstrap";
+import { POST_TRANSACTION, FETCH_TRANSACTION } from "../utils/ResDbApis";
 import { sendRequest } from "../utils/ResDbClient";
 
 function DataUploader() {
@@ -27,7 +35,10 @@ function DataUploader() {
 
   const fetchInventory = async () => {
     console.log("Fetching inventory...");
-    const query = FETCH_INVENTORY(metadata.signerPublicKey);
+    const query = FETCH_TRANSACTION(
+      metadata.signerPublicKey,
+      metadata.signerPublicKey
+    );
     try {
       sendRequest(query).then((res) => {
         if (res && res.data && res.data.getFilteredTransactions) {
@@ -46,10 +57,20 @@ function DataUploader() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    document
+      .getElementById("inventory-section")
+      .scrollIntoView({ behavior: "smooth" });
+  };
+
   const readExcel = async (e) => {
     e.preventDefault();
     let selectedFile = e.target.files[0];
     if (selectedFile && ALLOWED_FILE_TYPES.includes(selectedFile.type)) {
+      document
+      .getElementById("inventory-section")
+      .scrollIntoView({ behavior: "smooth" });
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = e.target.result;
@@ -73,47 +94,104 @@ function DataUploader() {
   };
 
   return (
-    <Card>
-      <Card.Body>
-        <h2 className="text-center mb-4">Upload File</h2>
-        <Form>
-          <Form.Control type="file" onChange={readExcel} required />
-        </Form>
-        {error && (
-          <div className="alert alert-danger" role="alert">
-            {error}
+    <>
+      <div className="wrapper">
+        <div className="page-header">
+          <img
+            alt="..."
+            className="path"
+            src={require("../assets/img/blob.png")}
+          />
+          <div className="content-center">
+            <Row className="row-grid justify-content-between align-items-center text-left">
+              <Col lg="6" md="6">
+                <h1 className="text-white">
+                  We believe in food <br />
+                  <span className="text-white">integrity</span>
+                </h1>
+                <p className="text-white mb-3">
+                  TODO: CHANGE THE MATTER A wonderful serenity has taken
+                  possession of my entire soul, like these sweet mornings of
+                  spring which I enjoy with my whole heart.
+                </p>
+              </Col>
+              <Col lg="4" md="5">
+                <img
+                  alt="..."
+                  className="img-fluid"
+                  src={require("../assets/img/inventory.png")}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Container>
+                <Row className="justify-content-between">
+                  <Col>
+                    <Card>
+                      <CardBody>
+                        <Input
+                          type="file"
+                          placeholder="Upload here!"
+                          onChange={readExcel}
+                        />
+                      {error && (
+                        <h4 className="text-danger text-center">
+                          {error}
+                          </h4>
+                      )}
+                      </CardBody>
+                    </Card>
+                    <div className="btn-wrapper">
+                      <Button
+                        className="btn-simple"
+                        color="info"
+                        href="#pablo"
+                        onClick={handleSubmit}
+                      >
+                        <i className="tim-icons icon-notes" /> Display My Inventory
+                      </Button>
+                    </div>
+                  </Col>
+                </Row>
+              </Container>
+            </Row>
           </div>
-        )}
-
-        {inventory.length > 0 ? (
-          <div>
-            <div className="table-responsive">
-              <table className="table">
-                <thead>
+        </div>
+        <div className="section" id="inventory-section" style={{marginLeft: '-10rem'}}>
+          <img
+            alt="..."
+            className="path"
+            width="100%"
+            src={require("../assets/img/waves.png")}
+          />
+          <Container style={{ marginTop: "2rem" }}>
+            {inventory.length > 0 ? (
+              <table className="tablesorter" >
+                <thead className="text-white">
                   <tr>
                     {Object.keys(inventory[0]).map((key) => (
-                      <th key={key}>{key}</th>
+                      <th className="header text-center" style={{padding: '1rem'}}>{key}</th>
                     ))}
                   </tr>
+                  
                 </thead>
-
                 <tbody>
                   {inventory.map((item, index) => (
-                    <tr key={index}>
+                    <tr>
                       {Object.keys(item).map((key) => (
-                        <td key={key}>{item[key]}</td>
+                        <td className="text-center" style={{padding: '1rem', color: "white"}}>{item[key]}</td>
                       ))}
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-          </div>
-        ) : (
-          <div className="w-100 text-center mt-2">No inventory found!</div>
-        )}
-      </Card.Body>
-    </Card>
+            ) : (
+              <div className="w-100 text-center mt-2 text-white">No inventory found!</div>
+            )}
+          </Container>
+        </div>
+      </div>
+    </>
   );
 }
 export default DataUploader;
