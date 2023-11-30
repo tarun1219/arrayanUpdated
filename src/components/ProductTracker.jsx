@@ -48,7 +48,6 @@ function ProductTracker() {
 
           res.data.getFilteredProductTransactions.forEach((item) => {
             let info = JSON.parse(item.asset.replace(/'/g, '"')).data;
-            console.log("amul ", info)
             let op = info["OutputProducts"];
             let ip = info["InputProduct"];
 
@@ -210,7 +209,7 @@ function ProductTracker() {
                         </Row>
                       </CardBody>
                       <CardFooter className="text-center">
-                        <Button className="btn-simple" color="primary">
+                        <Button className="btn-simple" color="primary" href="mailto:agali@ucdavis.edu">
                           Claim
                         </Button>
                       </CardFooter>

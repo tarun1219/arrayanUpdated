@@ -80,7 +80,7 @@ export default function IndexNavbar() {
       <Container>
         <div className="navbar-translate">
           <NavbarBrand to="/" tag={Link} id="navbar-brand">
-            <span>Arrayan • </span>
+            <span>Arrayán • </span>
             The Resilient Food Supply Chain
           </NavbarBrand>
           {/* <UncontrolledTooltip placement="bottom" target="navbar-brand">
@@ -175,7 +175,7 @@ export default function IndexNavbar() {
                   <i className="tim-icons icon-badge" />
                   Login
                 </DropdownItem>
-                <DropdownItem tag={Link} to="/">
+                <DropdownItem tag={Link} to="/register">
                   <i className="tim-icons icon-bullet-list-67" />
                   Register
                 </DropdownItem>

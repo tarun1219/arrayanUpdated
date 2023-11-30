@@ -1,4 +1,5 @@
-import Home from "./pages/Home";
+import RegisterPage from "./pages/RegisterPage";
+import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage"
 import { AuthProvider } from './context/AuthContext'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
@@ -13,8 +14,9 @@ function App() {
         <Router>
           <AuthProvider>
             <Routes>
-              <Route exact path="/" element={<Home/>} />
+              <Route exact path="/" element={<LandingPage/>} />
               <Route exact path="/login" element={<LoginPage/>} />
+              <Route exact path="/register" element={<RegisterPage/>} />
               <Route exact path="/inventory" element={<InventoryPage/>} />
               <Route exact path="/track" element={<SupplyChainPage/>} />
               {/* <Route path="/" component={Dashboard} /> */}
