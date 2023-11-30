@@ -4,9 +4,11 @@ import { AuthProvider } from './context/AuthContext'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import React from "react"
 import InventoryPage from "./pages/InventoryPage";
+import SupplyChainPage from "./pages/SupplyChainPage";
 
 function App() {
   return (
+    
       <div>
         <Router>
           <AuthProvider>
@@ -14,6 +16,7 @@ function App() {
               <Route exact path="/" element={<Home/>} />
               <Route exact path="/login" element={<LoginPage/>} />
               <Route exact path="/inventory" element={<InventoryPage/>} />
+              <Route exact path="/track" element={<SupplyChainPage/>} />
               {/* <Route path="/" component={Dashboard} /> */}
             </Routes>
           </AuthProvider>
