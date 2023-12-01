@@ -28,12 +28,10 @@ import {
   NavbarBrand,
   Navbar,
   NavItem,
-  NavLink,
   Nav,
   Container,
   Row,
   Col,
-  UncontrolledTooltip,
 } from "reactstrap";
 
 export default function IndexNavbar() {
