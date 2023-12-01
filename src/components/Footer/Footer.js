@@ -50,6 +50,9 @@ export default function Footer() {
             </div>
           </Col>
           <Col className="text-center">
+           <p style={{marginTop: '20%'}}>Built on Resilient DB</p> 
+          </Col>
+          <Col className="text-center">
            <p style={{marginTop: '20%'}}>© 2023 Arrayán. All Rights Reserved.</p> 
           </Col>
         </Row>

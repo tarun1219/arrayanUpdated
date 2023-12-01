@@ -80,8 +80,7 @@ export default function IndexNavbar() {
       <Container>
         <div className="navbar-translate">
           <NavbarBrand to="/" tag={Link} id="navbar-brand">
-            <span>Arrayán • </span>
-            The Resilient Food Supply Chain
+            <span style={{fontWeight: 'bold', fontSize: '1.5rem'}}>Arrayán</span>
           </NavbarBrand>
           {/* <UncontrolledTooltip placement="bottom" target="navbar-brand">
             Designed and Coded by Creative Tim

@@ -149,18 +149,26 @@ export default function Home() {
                 <Row className="row-grid justify-content-center">
                   <Col lg="3" className="text-center">
                     <div className="info">
-                      <div className="icon icon-primary">
-                        <i className="tim-icons icon-chart-pie-36" />
-                      </div>
-                      <h4 className="info-title">Reduce food wastage</h4>
-                    </div>
-                  </Col>
-                  <Col lg="3" className="text-center">
-                    <div className="info">
                       <div className="icon icon-warning">
                         <i className="tim-icons icon-link-72" />
                       </div>
                       <h4 className="info-title">Preserve food safety</h4>
+                    </div>
+                  </Col>
+                  <Col lg="3" className="text-center">
+                    <div className="info">
+                      <div className="icon icon-danger">
+                        <i className="tim-icons icon-lock-circle" />
+                      </div>
+                      <h4 className="info-title">Enhance Food security</h4>
+                    </div>
+                  </Col>
+                  <Col lg="3" className="text-center">
+                    <div className="info">
+                      <div className="icon icon-primary">
+                        <i className="tim-icons icon-chart-pie-36" />
+                      </div>
+                      <h4 className="info-title">Reduce food wastage</h4>
                     </div>
                   </Col>
                   <Col lg="3" className="text-center">
@@ -171,14 +179,6 @@ export default function Home() {
                       <h4 className="info-title">
                         Boost the valorization of by-products
                       </h4>
-                    </div>
-                  </Col>
-                  <Col lg="3" className="text-center">
-                    <div className="info">
-                      <div className="icon icon-danger">
-                        <i className="tim-icons icon-lock-circle" />
-                      </div>
-                      <h4 className="info-title">Enhance Food security</h4>
                     </div>
                   </Col>
                 </Row>
@@ -197,7 +197,7 @@ export default function Home() {
                     <Row>
                       <Col md="4" xs="5">
                         <div className="icon-big text-center icon-warning">
-                          <i className="tim-icons icon-gift-2 text-info" />
+                          <i className="tim-icons icon-bank text-warning" />
                         </div>
                       </Col>
                       <Col md="8" xs="7">
@@ -219,7 +219,7 @@ export default function Home() {
                     <Row>
                       <Col md="4" xs="5">
                         <div className="icon-big text-center icon-warning">
-                          <i className="tim-icons icon-gift-2 text-info" />
+                          <i className="tim-icons icon-delivery-fast text-primary" />
                         </div>
                       </Col>
                       <Col md="8" xs="7">
@@ -239,7 +239,7 @@ export default function Home() {
                     <Row>
                       <Col md="4" xs="5">
                         <div className="icon-big text-center icon-warning">
-                          <i className="tim-icons icon-gift-2 text-info" />
+                          <i className="tim-icons icon-cart text-danger" />
                         </div>
                       </Col>
                       <Col md="8" xs="7">
@@ -259,7 +259,7 @@ export default function Home() {
                     <Row>
                       <Col md="4" xs="5">
                         <div className="icon-big text-center icon-warning">
-                          <i className="tim-icons icon-credit-card text-success" />
+                          <i className="tim-icons icon-wallet-43 text-success" />
                         </div>
                       </Col>
                       <Col md="8" xs="7">
