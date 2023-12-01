@@ -28,12 +28,10 @@ import {
   NavbarBrand,
   Navbar,
   NavItem,
-  NavLink,
   Nav,
   Container,
   Row,
   Col,
-  UncontrolledTooltip,
 } from "reactstrap";
 
 export default function IndexNavbar() {
@@ -70,18 +68,12 @@ export default function IndexNavbar() {
   const onCollapseExited = () => {
     setCollapseOut("");
   };
-  const scrollToDownload = () => {
-    document
-      .getElementById("download-section")
-      .scrollIntoView({ behavior: "smooth" });
-  };
   return (
     <Navbar className={"fixed-top " + color} color-on-scroll="100" expand="lg">
       <Container>
         <div className="navbar-translate">
           <NavbarBrand to="/" tag={Link} id="navbar-brand">
-            <span>Arrayan • </span>
-            The Resilient Food Supply Chain
+            <span style={{fontWeight: 'bold', fontSize: '1.5rem'}}>Arrayán</span>
           </NavbarBrand>
           {/* <UncontrolledTooltip placement="bottom" target="navbar-brand">
             Designed and Coded by Creative Tim
@@ -175,7 +167,7 @@ export default function IndexNavbar() {
                   <i className="tim-icons icon-badge" />
                   Login
                 </DropdownItem>
-                <DropdownItem tag={Link} to="/">
+                <DropdownItem tag={Link} to="/register">
                   <i className="tim-icons icon-bullet-list-67" />
                   Register
                 </DropdownItem>
