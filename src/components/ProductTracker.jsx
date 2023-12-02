@@ -8,6 +8,9 @@ import {
   CardBody,
   Container,
   CardFooter,
+  ListGroup,
+  ListGroupItem,
+  UncontrolledAlert,
 } from "reactstrap";
 
 import { FETCH_PRODUCT } from "../utils/ResDbApis";
@@ -20,6 +23,7 @@ function ProductTracker() {
   const [initialProduct, setInitialProduct] = useState({});
   const [productFound, setProductFound] = useState(true);
   const [biproducts, setBiproducts] = useState([]);
+  let visited = [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +35,7 @@ function ProductTracker() {
 
   const trackProduct = async () => {
     console.log("Tracking product: ", product);
-    if(product=="") {
+    if (product == "") {
       setProductFound(false);
       return;
     }
@@ -58,11 +62,12 @@ function ProductTracker() {
               adj[ip].push(info);
             }
 
-            if (!biprods.includes(info["ByProducts"])) {
+            if (!biprods.includes(info["ByProducts"]) || info["ByProducts"]!="None") {
               biprods.push(info["ByProducts"]);
             }
           });
           setProductStages(adj);
+          console.log(adj);
           setBiproducts(biprods);
         } else {
           trackProduct(); // BUG: Temporary fix for the intermittent graphql error
@@ -73,6 +78,46 @@ function ProductTracker() {
 
       console.log("Product tracking error ", error);
     }
+  };
+
+  const renderChain = (node) => {
+    if (!productStages[node] || visited.includes(node)) {
+      return null;
+    }
+    visited.push(node)
+    return (
+      <>
+        <ListGroupItem
+          style={{ backgroundColor: "transparent", border: "none" }}
+        >
+          <Card>
+            <CardHeader>
+              <h3>{productStages[node][0]["OutputProducts"]}</h3>
+            </CardHeader>
+            <CardBody>
+              {productStages[node].map((neighbor) => (
+                <Card
+                  className="text-left card-stats bg-default"
+                  style={{ marginBottom: "0.5rem" }}
+                >
+                  <CardBody>
+                    <ul>
+                      <li>Name: {neighbor.Name}</li>
+                      <li>Desc: {neighbor.Description}</li>
+                      <li>Event: {neighbor.EventType}</li>
+                      <li>Byproducts: {neighbor.ByProducts}</li>
+                    </ul>
+                  </CardBody>
+                </Card>
+              ))}
+            </CardBody>
+          </Card>
+        </ListGroupItem>
+        {productStages[node].map((neighbor) =>
+          renderChain(neighbor["OutputProducts"])
+        )}
+      </>
+    );
   };
 
   return (
@@ -92,9 +137,7 @@ function ProductTracker() {
                   <span className="text-white">secured</span>
                 </h1>
                 <p className="text-white mb-3">
-                  TODO: CHANGE THE MATTER A wonderful serenity has taken
-                  possession of my entire soul, like these sweet mornings of
-                  spring which I enjoy with my whole heart.
+                  Each one of your products is unique. Access to the footprint of your product from farm to fork and beyond.
                 </p>
               </Col>
               <Col lg="4" md="5">
@@ -144,51 +187,48 @@ function ProductTracker() {
           />
           {productStages && Object.keys(productStages).length > 0 ? (
             <Container style={{ marginTop: "2rem" }}>
-              <Row key={0}>
-                <Col>
+                      <UncontrolledAlert className="alert-with-icon" color="success">
+          <span data-notify="icon" className="tim-icons icon-bulb-63" />
+          <span>
+            <b>Voila! </b>
+            Here’s the path builded with purpose, the path shaped with traceability for sustainability.
+          </span>
+        </UncontrolledAlert>
+              <h3 className="text-white mb-3">
+              </h3>
+              <ListGroup
+                horizontal
+                style={{
+                  overflowX: "auto",
+                  whiteSpace: "nowrap",
+                  width: "100%",
+                  marginBottom: "2rem"
+                }}
+                className="list-group-scroll"
+              >
+                <ListGroupItem
+                  style={{ backgroundColor: "transparent", border: "none" }}
+                >
                   <Card>
                     <CardHeader>
-                      <h3>{initialProduct['OutputProducts']}</h3>
+                      <h3>{initialProduct["OutputProducts"]}</h3>
                     </CardHeader>
                     <CardBody>
                       <Card className="text-left card-stats bg-default">
                         <CardBody>
                           <ul>
                             <li>Name: {initialProduct.Name}</li>
-                            <li> Desc: {initialProduct.Description}</li>
+                            <li>Desc: {initialProduct.Description}</li>
                             <li>Event: {initialProduct.EventType}</li>
+                            <li>Byproducts: {initialProduct.ByProducts}</li>
                           </ul>
                         </CardBody>
                       </Card>
                     </CardBody>
                   </Card>
-                </Col>
-                {Object.keys(productStages).map((node, index) => (
-                  <Col>
-                    <Card>
-                      <CardHeader>
-                        <h3>{productStages[node][0]['OutputProducts']}</h3>
-                      </CardHeader>
-                      <CardBody>
-                        {productStages[node].map((neighbor) => (
-                          <Card
-                            className="text-left card-stats bg-default"
-                            style={{ marginBottom: "0.5rem" }}
-                          >
-                            <CardBody>
-                              <ul>
-                                <li>Name: {neighbor.Name}</li>
-                                <li> Desc: {neighbor.Description}</li>
-                                <li>Event: {neighbor.EventType}</li>
-                              </ul>
-                            </CardBody>
-                          </Card>
-                        ))}
-                      </CardBody>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
+                </ListGroupItem>
+                {renderChain(initialProduct["OutputProducts"])}
+              </ListGroup>
               {biproducts.length > 0 ? (
                 <Row>
                   <Col>
@@ -209,7 +249,11 @@ function ProductTracker() {
                         </Row>
                       </CardBody>
                       <CardFooter className="text-center">
-                        <Button className="btn-simple" color="primary" href="mailto:agali@ucdavis.edu">
+                        <Button
+                          className="btn-simple"
+                          color="primary"
+                          href="mailto:agali@ucdavis.edu"
+                        >
                           Claim
                         </Button>
                       </CardFooter>

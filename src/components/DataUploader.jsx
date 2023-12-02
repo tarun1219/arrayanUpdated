@@ -47,7 +47,6 @@ function DataUploader() {
             json.push(JSON.parse(item.asset.replace(/'/g, '"')).data);
           });
           setInventory(json);
-          console.log(json);
         } else {
           fetchInventory(); // BUG: Temporary fix for the intermittent graphql error
         }
@@ -77,8 +76,9 @@ function DataUploader() {
         const workbook = xlsx.read(data, { type: "json" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const json = xlsx.utils.sheet_to_json(worksheet);
+        const json = xlsx.utils.sheet_to_json(worksheet, { raw: false, dateNF: "yyyy-mm-ddTHH:MM:ss.000Z" });
         json.forEach((dataItem) => {
+          dataItem["Timestamp"] = new Date(dataItem["Timestamp"]);
           sendRequest(
             POST_TRANSACTION(metadata, JSON.stringify(dataItem))
           ).then((res) => {
@@ -110,9 +110,7 @@ function DataUploader() {
                   <span className="text-white">integrity</span>
                 </h1>
                 <p className="text-white mb-3">
-                  TODO: CHANGE THE MATTER A wonderful serenity has taken
-                  possession of my entire soul, like these sweet mornings of
-                  spring which I enjoy with my whole heart.
+                The whole is the sum of its parts. Find the most important events and properties on your supply chain of your products, raw materials and by-products.
                 </p>
               </Col>
               <Col lg="4" md="5">
@@ -158,12 +156,12 @@ function DataUploader() {
           </div>
         </div>
         <div className="section" id="inventory-section" style={{marginLeft: '-10rem'}}>
-          <img
+          {/* <img
             alt="..."
             className="path"
             width="100%"
             src={require("../assets/img/waves.png")}
-          />
+          /> */}
           <Container style={{ marginTop: "2rem" }}>
             {inventory.length > 0 ? (
               <table className="tablesorter" >

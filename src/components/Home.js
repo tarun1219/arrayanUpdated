@@ -1,41 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { FETCH_PRODUCT } from "../utils/ResDbApis";
-import { sendRequest } from "../utils/ResDbClient";
-import { Container, Row, Col, Card, CardBody, CardTitle } from "reactstrap";
+import React from "react";
+import { Container, Row, Col } from "reactstrap";
 import Footer from "../components/Footer/Footer";
+import Dashboard from "./Dashboard";
 
 export default function Home() {
-  const [count, setCount] = useState(0);
-  const [byProductCount, setByProductCount] = useState(0);
 
-  useEffect(() => {
-    getCount();
-  });
-
-  const getCount = async () => {
-    const query = FETCH_PRODUCT("final-product");
-    try {
-      sendRequest(query).then((res) => {
-        if (res && res.data && res.data.getFilteredProductTransactions) {
-          setCount(res.data.getFilteredProductTransactions.length);
-          let biprods = [];
-          let biCount = 0;
-          res.data.getFilteredProductTransactions.forEach((item) => {
-            let info = JSON.parse(item.asset.replace(/'/g, '"')).data;
-            if (!biprods.includes(info["ByProducts"])) {
-              biprods.push(info["ByProducts"]);
-              biCount++;
-            }
-          });
-          setByProductCount(biCount);
-        } else {
-          getCount(); // BUG: Temporary fix for the intermittent graphql error
-        }
-      });
-    } catch (error) {
-      console.log("Error retrieving", error);
-    }
-  };
   return (
     <>
       <div className="wrapper">
@@ -186,96 +155,7 @@ export default function Home() {
             </Row>
           </Container>
         </section>
-        <section className="section section-lg">
-          <Container>
-            <Row className="justify-content-center text-center">
-              <h3>Stats</h3>
-
-              <Col className="mt-lg-5" md="5">
-                <Card className="card-stats bg-default">
-                  <CardBody>
-                    <Row>
-                      <Col md="4" xs="5">
-                        <div className="icon-big text-center icon-warning">
-                          <i className="tim-icons icon-bank text-warning" />
-                        </div>
-                      </Col>
-                      <Col md="8" xs="7">
-                        <div className="numbers">
-                          <CardTitle tag="p">1</CardTitle>
-                          <p />
-                          <p className="card-category">
-                            Participating Organization
-                          </p>
-                        </div>
-                      </Col>
-                    </Row>
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col className="mt-lg-5" md="5">
-                <Card className="card-stats bg-default">
-                  <CardBody>
-                    <Row>
-                      <Col md="4" xs="5">
-                        <div className="icon-big text-center icon-warning">
-                          <i className="tim-icons icon-delivery-fast text-primary" />
-                        </div>
-                      </Col>
-                      <Col md="8" xs="7">
-                        <div className="numbers">
-                          <CardTitle tag="p">1</CardTitle>
-                          <p />
-                          <p className="card-category">Product</p>
-                        </div>
-                      </Col>
-                    </Row>
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col className="mt-lg-5" md="5">
-                <Card className="card-stats bg-default">
-                  <CardBody>
-                    <Row>
-                      <Col md="4" xs="5">
-                        <div className="icon-big text-center icon-warning">
-                          <i className="tim-icons icon-cart text-danger" />
-                        </div>
-                      </Col>
-                      <Col md="8" xs="7">
-                        <div className="numbers">
-                          <CardTitle tag="p">{byProductCount}</CardTitle>
-                          <p />
-                          <p className="card-category">ByProducts</p>
-                        </div>
-                      </Col>
-                    </Row>
-                  </CardBody>
-                </Card>
-              </Col>
-              <Col className="mt-lg-5" md="5">
-                <Card className="card-stats bg-default">
-                  <CardBody>
-                    <Row>
-                      <Col md="4" xs="5">
-                        <div className="icon-big text-center icon-warning">
-                          <i className="tim-icons icon-wallet-43 text-success" />
-                        </div>
-                      </Col>
-                      <Col md="8" xs="7">
-                        <div className="numbers">
-                          <CardTitle tag="p">{count}</CardTitle>
-                          <p />
-                          <p className="card-category">Transactions</p>
-                        </div>
-                      </Col>
-                    </Row>
-                  </CardBody>
-                </Card>
-              </Col>
-            </Row>
-          </Container>
-        </section>
+        <Dashboard />
         <Footer />
       </div>
     </>
