@@ -62,7 +62,7 @@ function ProductTracker() {
               adj[ip].push(info);
             }
 
-            if (!biprods.includes(info["ByProducts"]) || info["ByProducts"]!="None") {
+            if (!biprods.includes(info["ByProducts"]) && info["ByProducts"]!="None") {
               biprods.push(info["ByProducts"]);
             }
           });
