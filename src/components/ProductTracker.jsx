@@ -252,7 +252,7 @@ function ProductTracker() {
                         <Button
                           className="btn-simple"
                           color="primary"
-                          href="mailto:agali@ucdavis.edu"
+                          href="mailto:arrayan.resilientdb@gmail.com"
                         >
                           Claim
                         </Button>

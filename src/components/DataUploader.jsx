@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import * as xlsx from "xlsx";
 import {
   Input,
@@ -11,8 +11,13 @@ import {
 } from "reactstrap";
 import { POST_TRANSACTION, FETCH_TRANSACTION } from "../utils/ResDbApis";
 import { sendRequest } from "../utils/ResDbClient";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function DataUploader() {
+  const {currentUser, userKeys} = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const ALLOWED_FILE_TYPES = [
     "application/vnd.ms-excel",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -21,9 +26,9 @@ function DataUploader() {
 
   //TODO: Remove encryption keys from code
   const metadata = {
-    signerPublicKey: "HvNRQznqrRdCwSKn6R8ZoQE4U3aobQShajK1NShQhGRn",
-    signerPrivateKey: "2QdMTdaNj8mJjduXFAsHieVmcsBcqeWQyW9v891kZEXC",
-    recipientPublicKey: "HvNRQznqrRdCwSKn6R8ZoQE4U3aobQShajK1NShQhGRn",
+    signerPublicKey: userKeys?.publicKey,
+    signerPrivateKey: userKeys?.privateKey,
+    recipientPublicKey: process.env.REACT_APP_ADMIN_PUBLIC_KEY,
   };
 
   const [inventory, setInventory] = useState([]);
@@ -37,7 +42,7 @@ function DataUploader() {
     console.log("Fetching inventory...");
     const query = FETCH_TRANSACTION(
       metadata.signerPublicKey,
-      metadata.signerPublicKey
+      metadata.recipientPublicKey
     );
     try {
       sendRequest(query).then((res) => {
@@ -131,6 +136,7 @@ function DataUploader() {
                           type="file"
                           placeholder="Upload here!"
                           onChange={readExcel}
+                          disabled={currentUser==null}
                         />
                       {error && (
                         <h4 className="text-danger text-center">
@@ -140,7 +146,17 @@ function DataUploader() {
                       </CardBody>
                     </Card>
                     <div className="btn-wrapper">
-                      <Button
+                      {
+                        currentUser==null?
+                        <Button
+                        className="btn-simple"
+                        color="info"
+                        href="#pablo"
+                        onClick={()=>navigate("/login")}
+                      >
+                        <i className="tim-icons icon-badge" /> Please log in to view/upload your inventory
+                      </Button>:
+                        <Button
                         className="btn-simple"
                         color="info"
                         href="#pablo"
@@ -148,6 +164,8 @@ function DataUploader() {
                       >
                         <i className="tim-icons icon-notes" /> Display My Inventory
                       </Button>
+
+                      }
                     </div>
                   </Col>
                 </Row>

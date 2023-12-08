@@ -31,9 +31,9 @@ export default function Login() {
       setError("");
       setLoading(true);
       await login(emailRef.current.value, passwordRef.current.value);
-      history.push("/");
       history("/inventory");
-    } catch {
+    } catch (error) {
+      console.log(error)
       setError("Failed to log in");
     }
 
@@ -75,7 +75,7 @@ export default function Login() {
                           style={{ marginTop: "1rem" }}
                           innerRef={passwordRef}
                           placeholder="Password"
-                          type="text"
+                          type="password"
                         />
                       </Form>
                     </CardBody>
@@ -120,11 +120,11 @@ export default function Login() {
                 </Col>
                 <Col>
                   <img
-                    width={"70%"}
+                    width={"60%"}
                     style={{ float: "right" }}
                     alt="..."
                     className="img-fluid"
-                    src={require("../assets/img/coffee.png")}
+                    src={require("../assets/img/peel.png")}
                   />
                 </Col>
               </Row>

@@ -15,7 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // reactstrap components
 import {
@@ -33,12 +33,16 @@ import {
   Row,
   Col,
 } from "reactstrap";
+import { AuthContext, useAuth } from "../../context/AuthContext";
 
 export default function IndexNavbar() {
   let navigate = useNavigate();
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [collapseOut, setCollapseOut] = React.useState("");
   const [color, setColor] = React.useState("navbar-transparent");
+  const {logout} = useAuth();
+  const {currentUser} = useContext(AuthContext);
+
   React.useEffect(() => {
     window.addEventListener("scroll", changeColor);
     return function cleanup() {
@@ -99,7 +103,7 @@ export default function IndexNavbar() {
             <Row>
               <Col className="collapse-brand" xs="6">
                 <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                  BLK•React
+                Arrayán
                 </a>
               </Col>
               <Col className="collapse-close text-right" xs="6">
@@ -150,6 +154,26 @@ export default function IndexNavbar() {
                 <p className="d-lg-none d-xl-none">Instagram</p>
               </NavLink>
             </NavItem> */}
+            <NavItem>
+            <Button
+                className="nav-link d-none d-lg-block"
+                color="default"
+                onClick={()=>navigate("/track")}
+              >
+                <i className="tim-icons icon-zoom-split" /> Search
+              </Button>
+            </NavItem>
+            <NavItem>
+              <Button
+                className="nav-link d-none d-lg-block"
+                color="default"
+                onClick={()=>navigate("/inventory")}
+              >
+                <i className="tim-icons icon-single-02" /> My Inventory
+              </Button>
+            </NavItem>
+            {
+              currentUser==null?
             <UncontrolledDropdown nav>
               <DropdownToggle
                 caret
@@ -172,23 +196,16 @@ export default function IndexNavbar() {
                   Register
                 </DropdownItem>
               </DropdownMenu>
-            </UncontrolledDropdown>
+            </UncontrolledDropdown>: 
+            <NavItem>
             <Button
                 className="nav-link d-none d-lg-block"
                 color="default"
-                onClick={()=>navigate("/track")}
+                onClick={async ()=>await logout()}
               >
-                <i className="tim-icons icon-zoom-split" /> Search
+                <i className="tim-icons icon-button-power" /> Logout
               </Button>
-            <NavItem>
-              <Button
-                className="nav-link d-none d-lg-block"
-                color="default"
-                onClick={()=>navigate("/inventory")}
-              >
-                <i className="tim-icons icon-single-02" /> My Inventory
-              </Button>
-            </NavItem>
+              </NavItem>}
           </Nav>
         </Collapse>
       </Container>
