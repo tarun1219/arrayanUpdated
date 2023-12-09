@@ -71,11 +71,11 @@ export default function Home() {
           </Container>
         </div>
         <section className="section section-lg section-safe">
-          <img
+          {/* <img
             alt="..."
             className="path"
             src={require("../assets/img/path5.png")}
-          />
+          /> */}
           <Container>
             <Row className="row-grid justify-content-between">
               <Col md="5">
@@ -83,7 +83,7 @@ export default function Home() {
                   style={{ borderRadius: "5rem" }}
                   alt="..."
                   className="img-fluid floating"
-                  src={require("../assets/img/blockchain_FSC.jpg")}
+                  src={require("../assets/img/arrayan.jpg")}
                 />
               </Col>
               <Col md="6">

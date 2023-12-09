@@ -1,7 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { auth } from '../auth/firebaseAuthSDK'
+import { auth, database } from '../auth/firebaseAuthSDK'
+import { sendRequest } from '../utils/ResDbClient'
+import { GENERATE_KEYS } from '../utils/ResDbApis'
+import { set, ref, onValue } from 'firebase/database';
 
-const AuthContext = React.createContext()
+export const AuthContext = React.createContext()
 
 export function useAuth() {
   return useContext(AuthContext)
@@ -10,13 +13,42 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState()
   const [loading, setLoading] = useState(true)
+  const [userKeys, setUserKeys] = useState(null);
 
-  function signup(email, password) {
-    return auth.createUserWithEmailAndPassword(email, password)
+  async function signup(email, password) {
+    const response = await auth.createUserWithEmailAndPassword(email, password);
+    const userId = response.user.uid;
+
+    sendRequest(GENERATE_KEYS).then(async (res) => {
+      console.log("Generated keys successfully ", res);
+      const publicKey = res.data.generateKeys.publicKey;
+      const privateKey = res.data.generateKeys.privateKey;
+      console.log(publicKey, privateKey)
+      set(ref(database, 'users/'+userId), {
+        publicKey: publicKey,
+        privateKey: privateKey
+      })
+      setUserKeys({ publicKey, privateKey });
+    });
+    
+    return;
   }
 
-  function login(email, password) {
-    return auth.signInWithEmailAndPassword(email, password)
+  async function login(email, password) {
+    const response = await auth.signInWithEmailAndPassword(email, password)
+    console.log(response)
+    const userId = response.user.uid;
+    await fetchKeys(userId);
+    return;
+  }
+
+  async function fetchKeys(userId) {
+    const dbRef = ref(database, 'users/'+userId);
+    onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      setUserKeys(data);
+    });
+    return;
   }
 
   function logout() {
@@ -38,6 +70,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       setCurrentUser(user)
+      fetchKeys(user?.uid);
       setLoading(false)
     })
 
@@ -46,6 +79,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     currentUser,
+    userKeys,
     login,
     signup,
     logout,

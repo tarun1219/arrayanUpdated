@@ -18,8 +18,6 @@ import {
 } from "reactstrap";
 import { useAuth } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { sendRequest } from "../utils/ResDbClient";
-import { GENERATE_KEYS } from "../utils/ResDbApis";
 
 export default function UserSignup() {
   const emailRef = useRef();
@@ -40,12 +38,10 @@ export default function UserSignup() {
     try {
       setError("");
       setLoading(true);
-      sendRequest(GENERATE_KEYS).then((res) => {
-        console.log("Generated keys successfully ", res);
-      });
       await signup(emailRef.current.value, passwordRef.current.value);
-      history.push("/");
-    } catch {
+      history("/inventory");
+    } catch (error) {
+      console.log(error)
       setError("Failed to create an account");
     }
 
@@ -129,11 +125,11 @@ export default function UserSignup() {
                   </Col>
                   <Col>
                     <img
-                      width={"70%"}
+                      width={"60%"}
                       style={{ float: "right" }}
                       alt="..."
                       className="img-fluid"
-                      src={require("../assets/img/basket.png")}
+                      src={require("../assets/img/field.png")}
                     />
                   </Col>
                 </Row>
