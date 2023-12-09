@@ -1,70 +1,119 @@
-# Getting Started with Create React App
+# Arrayan
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Arrayan is a Food Supply Chain application built on the blockchain fabric of Resilient DB that tracks the products, by-products, and process history through the Food Supply Chain.
 
-## Available Scripts
+- Web Application: Built using React JS, [Create React App](https://github.com/facebook/create-react-app), [React Official Website](https://react.dev/)
+- Database: Powered by [ResilientDB](https://resilientdb.com/)
+- Theme: BLK Design System React, [BLK Design System Pro React](https://demos.creative-tim.com/blk-design-system-pro-react/?_ga=2.58939236.839164262.1702005007-948628969.1702005007#/presentation)
 
-In the project directory, you can run:
+## Modifications
 
-### `npm start`
+We have modified the existing [Resilient DB GraphQL APIs](https://github.com/ResilientApp/ResilientDB-GraphQL) catering the needs of a blockchain-based food supply chain and added a new API to fetch the products in the [forked repo](https://github.com/Amoolya-Reddy/ResilientDB-GraphQL)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Features and User Guide
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Home Page
 
-### `npm test`
+- Provides a general overview of the solution offered through the website.
+- **Getting Started**: To access the portal's features, users first need to register and log in. Once logged in, they can unlock functionalities such as inventory management and search capabilities.
+- **Live Inventory Visualization**: The Real-time Display provides an instant, visual representation of the current status of the inventory, ensuring up-to-the-moment insights.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Inventory
 
-### `npm run build`
+- **Seamless Upload Process**: Allows consumers to easily upload Excel files containing inventory data. Multiple Excel files can be uploaded and loaded consecutively.
+- **Transparent Inventory View**: Shows a clear and accessible display of updated inventory information visible to consumers.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Search
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Search Option**: Enables users to search and track any final product through the food supply chain.
+- **Visualizes Supply Chain**: Provides a comprehensive supply chain mapping of each product's entire supply chain and process details.
+- **Claiming By-Products**: Consumers can easily claim by-products in the process, fostering a circular economy. This feature empowers consumers to actively participate in sustainable practices. The consumer can communicate with the organizations using this feature through email.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Steps to run the system
+Please follow the detailed procedure below and ensure that every step is successful.
 
-### `npm run eject`
+### Setup Python3.10
+Ensure you have Python3.10, otherwise download it and set it up as default.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Setup ResilientDB
+You will need to clone the ResilientDB repo to get started:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+    git clone https://github.com/resilientdb/resilientdb.git
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Then navigate inside the ResilientDB directory:
+    
+    cd resilientdb
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Install dependencies:
+    
+    sh INSTALL.sh
 
-## Learn More
+Run ResilientDB KV Service (this may take a few minutes for the first time):
+    
+    ./service/tools/kv/server_tools/start_kv_service.sh
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Setup Crow HTTP server, SDK, and GraphQL server
+You will need to clone the ResilientDB GraphQL repo to get started:
+    
+    git clone https://github.com/Amoolya-Reddy/ResilientDB-GraphQL
+    
+Then navigate inside the ResilientDBGraphQL directory:
+    
+    cd ResilientDB-GraphQL
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Install the Crow dependencies:
+    
+    sudo apt update sudo apt install build-essential sudo apt install python3.10-dev sudo apt install apt-transport-https curl gnupg
 
-### Code Splitting
+Build Crow HTTP server (this may take a few minutes for the first time):
+   
+    bazel build service/http_server:crow_service_main
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Start the Crow HTTP server:
+    
+    bazel-bin/service/http_server/crow_service_main service/tools/config/interface/service.config service/http_server/server_config.config
 
-### Analyzing the Bundle Size
+Create virtual environment for the Python SDK:
+    
+    python3 -m venv venv –without-pip
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Activate the virtual environment:
+    
+    source venv/bin/activate
 
-### Making a Progressive Web App
+Install pip in the virtual environment for the Python dependencies:
+    
+    curl https://bootstrap.pypa.io/get-pip.py | python
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Install the Python dependencies:
+    
+    pip install -r requirements.txt
 
-### Advanced Configuration
+Start the GraphQL server:
+    
+    python3 app.py
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Setup Arrayan
+Download NodeJS from [here](https://nodejs.org/en/download) and ensure that it’s added to PATH.
 
-### Deployment
+Clone the repo of arrayan to get started:
+    
+    git clone https://github.com/tarun1219/arrayan.git
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Then navigate inside the ResVault directory:
+    
+    cd arrayan
 
-### `npm run build` fails to minify
+Install the dependencies:
+    
+    npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Start the project:
+    
+    npm start
+
+Build the project:
+    
+    npm run build
+
+Setup cited from [ResVault](https://blog.resilientdb.com/2023/09/21/ResVault.html#prerequisites)
