@@ -2,7 +2,10 @@ import axios from 'axios';
 
 export const sendRequest = async (query) => {
     const headers = {
-        'Content-Type': 'application/json'
+        'Access-Control-Allow-Headers': '*',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': '*',
+        'Content-Type': 'application/json' 
     };
     const data = {
       query: query
