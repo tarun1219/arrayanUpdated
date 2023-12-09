@@ -35,7 +35,7 @@ Download NodeJS from [here](https://nodejs.org/en/download) and ensure that itâ€
 
 Clone the repo of arrayan to get started:
     
-    git clone https://github.com/tarun1219/arrayan.git
+    git clone https://github.com/Amoolya-Reddy/arrayan.git
 
 Then navigate inside the ResVault directory:
     
