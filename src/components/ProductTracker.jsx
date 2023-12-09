@@ -13,7 +13,7 @@ import {
   UncontrolledAlert,
 } from "reactstrap";
 
-import { FETCH_PRODUCT } from "../utils/ResDbApis";
+import { FETCH_TRANSACTION } from "../utils/ResDbApis";
 import { sendRequest } from "../utils/ResDbClient";
 import { CardHeader } from "react-bootstrap";
 
@@ -39,31 +39,33 @@ function ProductTracker() {
       setProductFound(false);
       return;
     }
-    const query = FETCH_PRODUCT(product);
+    const query = FETCH_TRANSACTION("", "");
     try {
       sendRequest(query).then((res) => {
-        if (res && res.data && res.data.getFilteredProductTransactions) {
-          if (res.data.getFilteredProductTransactions.length == 0)
+        if (res && res.data && res.data.getFilteredTransactions) {
+          if (res.data.getFilteredTransactions.length == 0)
             setProductFound(false);
           else setProductFound(true);
 
           let adj = {};
           let biprods = [...biproducts];
 
-          res.data.getFilteredProductTransactions.forEach((item) => {
+          res.data.getFilteredTransactions.forEach((item) => {
             let info = JSON.parse(item.asset.replace(/'/g, '"')).data;
-            let op = info["OutputProducts"];
-            let ip = info["InputProduct"];
+            if (info['Industry'] == product) {
+              let op = info["OutputProducts"];
+              let ip = info["InputProduct"];
 
-            if (!adj[ip]) adj[ip] = [];
+              if (!adj[ip]) adj[ip] = [];
 
-            if (op == ip) setInitialProduct(info);
-            else {
-              adj[ip].push(info);
-            }
+              if (op == ip) setInitialProduct(info);
+              else {
+                adj[ip].push(info);
+              }
 
-            if (!biprods.includes(info["ByProducts"]) && info["ByProducts"]!="None") {
-              biprods.push(info["ByProducts"]);
+              if (!biprods.includes(info["ByProducts"]) && info["ByProducts"] != "None") {
+                biprods.push(info["ByProducts"]);
+              }
             }
           });
           setProductStages(adj);
@@ -187,13 +189,13 @@ function ProductTracker() {
           />
           {productStages && Object.keys(productStages).length > 0 ? (
             <Container style={{ marginTop: "2rem" }}>
-                      <UncontrolledAlert className="alert-with-icon" color="success">
-          <span data-notify="icon" className="tim-icons icon-bulb-63" />
-          <span>
-            <b>Voila! </b>
-            Here’s the path builded with purpose, the path shaped with traceability for sustainability.
-          </span>
-        </UncontrolledAlert>
+              <UncontrolledAlert className="alert-with-icon" color="success">
+                <span data-notify="icon" className="tim-icons icon-bulb-63" />
+                <span>
+                  <b>Voila! </b>
+                  Here’s the path builded with purpose, the path shaped with traceability for sustainability.
+                </span>
+              </UncontrolledAlert>
               <h3 className="text-white mb-3">
               </h3>
               <ListGroup

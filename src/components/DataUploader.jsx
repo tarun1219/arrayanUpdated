@@ -45,7 +45,7 @@ function DataUploader() {
       metadata.recipientPublicKey
     );
     try {
-      sendRequest(query).then((res) => {
+      await sendRequest(query).then((res) => {
         if (res && res.data && res.data.getFilteredTransactions) {
           let json = [];
           res.data.getFilteredTransactions.forEach((item) => {
