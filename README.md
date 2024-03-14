@@ -1,6 +1,6 @@
 # Arrayan
 
-Arrayan is a Food Supply Chain application built on the blockchain fabric of Resilient DB that tracks the products, by-products, and process history through the Food Supply Chain.
+Arrayan is a Food Supply Chain application built on the blockchain fabric of ResilientDB that tracks the products, by-products, and process history through the Food Supply Chain.
 
 - Web Application: Built using React JS, [Create React App](https://github.com/facebook/create-react-app), [React Official Website](https://react.dev/)
 - Database: Powered by [ResilientDB](https://resilientdb.com/)
@@ -8,7 +8,7 @@ Arrayan is a Food Supply Chain application built on the blockchain fabric of Res
 
 ## Modifications
 
-We have modified the existing [Resilient DB GraphQL APIs](https://github.com/ResilientApp/ResilientDB-GraphQL) catering the needs of a blockchain-based food supply chain and added a new API to fetch the products in the [forked repo](https://github.com/Amoolya-Reddy/ResilientDB-GraphQL)
+We have modified the existing [ResilientDB GraphQL APIs](https://github.com/ResilientApp/ResilientDB-GraphQL) catering the needs of a blockchain-based food supply chain and added a new API to fetch the products in the [forked repo](https://github.com/Amoolya-Reddy/ResilientDB-GraphQL)
 
 ## Features and User Guide
 
@@ -53,7 +53,7 @@ Build the project:
     
     npm run build
 
-The above code uses online instance of Resilient DB and the application is ready to be launched. For further exploration, below steps can be followed to setup and play around with local instance.
+The above code uses online instance of ResilientDB and the application is ready to be launched. For further exploration, below steps can be followed to setup and play around with local instance.
 
 ### Setup Python3.10
 Ensure you have Python3.10, otherwise download it and set it up as default.

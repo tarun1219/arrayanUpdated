@@ -80,7 +80,7 @@ function Dashboard() {
             setTotalStats(prev => ({prev, totalCount}));
             setTransactionCount( prev => ({prev, totalTxns}));
         } else {
-          fetchData(); // BUG: Temporary fix for the intermittent graphql error
+          // fetchData(); // BUG: Temporary fix for the intermittent graphql error
         }
       });
     } catch (error) {

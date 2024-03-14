@@ -8,6 +8,8 @@ import {
   Card,
   CardBody,
   Container,
+  Form,
+  Label,
 } from "reactstrap";
 import { POST_TRANSACTION, FETCH_TRANSACTION } from "../utils/ResDbApis";
 import { sendRequest } from "../utils/ResDbClient";
@@ -17,6 +19,15 @@ import { useNavigate } from "react-router-dom";
 function DataUploader() {
   const {currentUser, userKeys} = useContext(AuthContext);
   const navigate = useNavigate();
+  const initialFormState = {
+    outputProducts: '',
+    byProducts: '',
+    timestamp: '',
+    inputProduct: '',
+    productQuantity: '',
+    byproductQuantity: '',
+    industry: '',
+  };
 
   const ALLOWED_FILE_TYPES = [
     "application/vnd.ms-excel",
@@ -31,15 +42,16 @@ function DataUploader() {
     recipientPublicKey: process.env.REACT_APP_ADMIN_PUBLIC_KEY,
   };
 
+  const [forms, setForms] = useState([initialFormState]);
   const [inventory, setInventory] = useState([]);
   const [error, setError] = useState("");
-
+  const [uploadState, setUploadState] = useState("");
   useEffect(() => {
     fetchInventory();
   }, []);
 
   const fetchInventory = async () => {
-    console.log("Fetching inventory...");
+    console.log("Fetching inventory...", metadata);
     const query = FETCH_TRANSACTION(
       metadata.signerPublicKey,
       metadata.recipientPublicKey
@@ -53,7 +65,7 @@ function DataUploader() {
           });
           setInventory(json);
         } else {
-          fetchInventory(); // BUG: Temporary fix for the intermittent graphql error
+          // fetchInventory(); // BUG: Temporary fix for the intermittent graphql error
         }
       });
     } catch (error) {
@@ -66,6 +78,33 @@ function DataUploader() {
     document
       .getElementById("inventory-section")
       .scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleInputChange = (index, fieldName, value) => {
+    const newForms = [...forms];
+    newForms[index][fieldName] = value;
+    setForms(newForms);
+  };
+
+  
+  const handleAddForm = () => {
+    setForms([...forms, { ...initialFormState }]);
+  };
+
+  const handleSaveData = () => {
+    // Convert forms data to JSON format
+    const jsonData = JSON.parse(JSON.stringify(forms, null, 2));
+    console.log(jsonData);
+    jsonData.forEach((dataItem) => {
+      dataItem["Timestamp"] = new Date(dataItem["Timestamp"]);
+      sendRequest(
+        POST_TRANSACTION(metadata, JSON.stringify(dataItem))
+      ).then((res) => {
+        console.log("Inventory added successfully ", res);
+      });
+    });
+    fetchInventory();
+    // You can now send jsonData to your server or perform any other desired action.
   };
 
   const readExcel = async (e) => {
@@ -126,25 +165,147 @@ function DataUploader() {
                 />
               </Col>
             </Row>
-            <Row>
+            <Row className="justify-content-between">
+              <Col>
+                <p className="text-white mb-3">
+                  <a href="https://cellar.innovint.us/#/login" target="_blank" rel="noopener noreferrer">
+                  Click here 
+                  </a>
+                   &nbsp;to seamlessly access your inventory in InnoVint.
+                </p>
+              </Col>
+            </Row>
+            {
+                uploadState == ""?
+                <Row className="justify-content-between">
+ 
+                <Col>
+                <Button
+                    color="info"
+                    href = "#upload"
+                    onClick={()=>setUploadState("Excel")}
+                  >
+                    <i className="tim-icons icon-attach-87" /> Upload an Excel sheet
+                  </Button>
+                </Col>
+                <Col>
+                <Button
+                    color="info"
+                    onClick={(e)=> {setUploadState("Form")}}
+                  >
+                    <i className="tim-icons icon-bullet-list-67" /> Fill in manually
+                  </Button>
+                </Col>
+              </Row>: <></>
+            }
+
+            <Row style={{marginTop: '2rem'}}>
               <Container>
                 <Row className="justify-content-between">
                   <Col>
+                  {
+                    uploadState == "Excel"?
                     <Card>
-                      <CardBody>
-                        <Input
-                          type="file"
-                          placeholder="Upload here!"
-                          onChange={readExcel}
-                          disabled={currentUser==null}
-                        />
-                      {error && (
-                        <h4 className="text-danger text-center">
-                          {error}
-                          </h4>
-                      )}
-                      </CardBody>
-                    </Card>
+                    <CardBody>
+                      <Input
+                        type="file"
+                        placeholder="Upload here!"
+                        onChange={readExcel}
+                        disabled={currentUser==null}
+                      />
+                    {error && (
+                      <h4 className="text-danger text-center">
+                        {error}
+                        </h4>
+                    )}
+                    </CardBody>
+                  </Card>:
+                  uploadState=="Form"?
+                  <Form>
+                    {
+                      forms.map((form, index) => (
+                        <Row key={index} className="mb-3 justify-content-between">
+                        <Col>
+                          <Input
+                            placeholder="Output Product"
+                            type="text"
+                            id={`outputProducts${index}`}
+                            value={form.outputProducts}
+                            onChange={(e) => handleInputChange(index, 'outputProducts', e.target.value)}
+                          />
+                        </Col>
+              
+                        <Col>
+                          <Input
+                            placeholder="ByProducts"
+                            type="text"
+                            id={`byProducts${index}`}
+                            value={form.byProducts}
+                            onChange={(e) => handleInputChange(index, 'byProducts', e.target.value)}
+                          />
+                        </Col>
+              
+                        <Col>
+                          <Input
+                            placeholder="Timestamp"
+                            type="datetime"
+                            id={`timestamp${index}`}
+                            value={form.timestamp}
+                            onChange={(e) => handleInputChange(index, 'timestamp', e.target.value)}
+                          />
+                        </Col>
+
+                        <Col>
+                          <Input
+                            placeholder="Input product"
+                            type="text"
+                            id={`inputProduct${index}`}
+                            value={form.inputProduct}
+                            onChange={(e) => handleInputChange(index, 'inputProduct', e.target.value)}
+                          />
+                        </Col>
+
+                        <Col>
+                          <Input
+                            placeholder="Prod Quantity"
+                            type="text"
+                            id={`productQuantity${index}`}
+                            value={form.productQuantity}
+                            onChange={(e) => handleInputChange(index, 'productQuantity', e.target.value)}
+                          />
+                        </Col>
+
+                        <Col>
+                          <Input
+                            type="text"
+                            placeholder="Byprod Quantity"
+                            id={`byproductQuantity${index}`}
+                            value={form.byproductQuantity}
+                            onChange={(e) => handleInputChange(index, 'byproductQuantity', e.target.value)}
+                          />
+                        </Col>
+
+                        <Col>
+                          <Input
+                            placeholder="industry"
+                            type="text"
+                            id={`industry${index}`}
+                            value={form.industry}
+                            onChange={(e) => handleInputChange(index, 'industry', e.target.value)}
+                          />
+                        </Col>              
+
+                      </Row>
+                      ))
+                    }
+                      <Button
+                        className="btn-simple"
+                        color="info" onClick={handleAddForm}>Add</Button>
+                    <Button
+                        color="info" onClick={handleSaveData}>Save Data</Button>
+                  </Form>:<></>
+                  }
+
                     <div className="btn-wrapper">
                       {
                         currentUser==null?

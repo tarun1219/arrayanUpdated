@@ -72,7 +72,7 @@ function ProductTracker() {
           console.log(adj);
           setBiproducts(biprods);
         } else {
-          trackProduct(); // BUG: Temporary fix for the intermittent graphql error
+          // trackProduct(); // BUG: Temporary fix for the intermittent graphql error
         }
       });
     } catch (error) {
@@ -158,7 +158,7 @@ function ProductTracker() {
                       <CardBody>
                         <Input
                           type="text"
-                          placeholder="Track your product here!"
+                          placeholder="Track your product's tale. Try the sample with 'Pinot Noir Bottle of Wine'"
                           onChange={(e) => setProduct(e.target.value)}
                           required
                         />
@@ -174,6 +174,16 @@ function ProductTracker() {
                         <i className="tim-icons icon-bulb-63" /> Track
                       </Button>
                     </div>
+                  </Col>
+                </Row>
+                <Row className="justify-content-between">
+                  <Col style={{marginTop: '1rem'}}>
+                  <p className="text-white mb-3 font-italic">
+                    Do you want to discover Carbon Footprint of your plate?&nbsp;
+                  <a href="https://amoolya-reddy.github.io/respirer/" target="_blank" rel="noopener noreferrer">
+                  Try Respirer 
+                  </a>
+                </p>
                   </Col>
                 </Row>
               </Container>

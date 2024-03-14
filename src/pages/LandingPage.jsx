@@ -1,6 +1,8 @@
 import React from "react";
 import IndexNavbar from "../components/Navbars/IndexNavbar";
 import Home from "../components/Home";
+import CoverPicture from "../components/CoverPicture";
+import BackgroundParticles from "../components/BackgroundParticles";
 
 const LandingPage = () => {
   React.useEffect(() => {
@@ -14,6 +16,8 @@ const LandingPage = () => {
     <>
       <IndexNavbar />
       <div className="wrapper">
+        {/* <CoverPicture /> */}
+        <BackgroundParticles />
         <Home />
         <div className="main"></div>
       </div>

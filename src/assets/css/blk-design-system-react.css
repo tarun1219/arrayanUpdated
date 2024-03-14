@@ -241,6 +241,216 @@ img {
   vertical-align: middle;
   border-style: none;
 }
+.animation-container {
+  position: relative;
+  overflow: hidden;
+  width: 40rem;
+  height: 40rem;
+}
+
+.base-image {
+  width: 100%;
+  height: 100%;
+}
+
+.relative-image {
+  width: auto;
+  height: 5rem;
+}
+
+.truck{
+  /* left: -50%; */
+  top: 63%;
+  left: 43%;
+  position: absolute;
+  opacity: 0;
+  animation: truckmotion2 5s 2s linear infinite; 
+}
+
+.truck2{
+  width: 7rem;
+  height: auto;
+  left: 36%;
+  top: 56%;
+  position: absolute;
+  animation: truckmotion2 5s linear infinite; 
+}
+
+.peels-seeds{
+  /* left: -50%; */
+  left: 64%;
+  top: 17%;
+  position: absolute;
+  animation: pulse 4s linear infinite; 
+}
+
+.factory{
+  /* left: -50%; */
+  left: 88%;
+  top: 29%;
+  position: absolute;
+
+}
+
+.diary{
+  /* left: -50%; */
+  left: 32%;
+  top: 17.5%;
+  position: absolute;
+  /* animation: rotateLeftRight 5s linear infinite;  */
+
+}
+
+.cart{
+  /* left: -50%; */
+  left: 75.5%;
+  top: 20%;
+  position: absolute;
+  animation: rotateLeftRight 5s linear infinite; 
+
+}
+
+.resilientlogo{
+  left: 47.5%;
+  top: 27%;
+  height: 2.5rem;
+  position: absolute;
+  animation: verticalmotion 4s linear infinite; 
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(0.7);
+  }
+  50% {
+    transform: scale(0.8);
+  }
+}
+
+.fruits{
+    /* left: -50%; */
+    left: 75%;
+    top: 37%;
+    position: absolute;
+    /* transform: translate(-50%, -50%); */
+    animation: rhombus 10s linear infinite;
+}
+
+
+.animation-crop-container  {
+  position: absolute;
+  height: 6rem;
+  width: 8rem;
+  top: 61%;
+  left: 54%;
+}
+
+.animated-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Define the fadeIn animation */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.animated-image:nth-child(1) {
+  animation: fadeOut 20s infinite;
+  animation-delay: 10s; /* Delay to offset the animations */
+}
+
+.animated-image:nth-child(2) {
+  animation: fadeIn 10s infinite;
+}
+
+#tsparticles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  background-image: url("");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50% 50%;
+}
+
+@keyframes fadeIn {
+  0%, 100% { opacity: 0; }
+  15% { opacity: 1; } 
+  85% { opacity: 1; } 
+}
+
+@keyframes fadeOut {
+  0%, 100% { opacity: 0; }
+  15% { opacity: 1; } 
+  85% { opacity: 1; } 
+}
+
+
+@keyframes rotateLeftRight {
+  0%, 100% {
+    transform: translateX(0) rotateY(0deg);
+  }
+  50% {
+    transform: translateX(5%) rotateY(10deg);
+  }
+}
+
+@keyframes verticalmotion {
+  0% {
+    transform: translateY(0%);
+  }
+  50% {
+    transform: translateY(50%);
+    /* opacity: 0;  */
+  }
+}
+
+@keyframes truckmotion2 {
+  0% {
+    transform: translateY(0%) translateX(0%);
+    opacity: 1; 
+  }
+  90% {
+    transform: translateY(100%) translateX(-180%);
+    /* opacity: 0;  */
+  }
+  100% {
+    transform: translateY(120%) translateX(-200%);
+    opacity: 0.1; 
+  }
+}
+
+@keyframes rhombus {
+  0% {
+    transform: translateX(5%) translateY(0%);
+  }
+  25% {
+    transform: translateX(0%) translateY(5%);
+  }
+  50% {
+    transform: translateX(-5%) translateY(0%);
+  }
+  75% {
+    transform: translateX(0%) translateY(-5%);
+  }
+  100% {
+    transform: translateX(5%) translateY(0%);
+  }
+}
+
+
 
 svg {
   overflow: hidden;
@@ -16068,7 +16278,7 @@ img {
   @keyframes topbar-x {
     0% {
       top: 0px;
-      transform: rotate(0deg);
+      transform:;
     }
     45% {
       top: 6px;
