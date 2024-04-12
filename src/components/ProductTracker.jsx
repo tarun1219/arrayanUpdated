@@ -158,10 +158,11 @@ function ProductTracker() {
                       <CardBody>
                         <Input
                           type="text"
-                          placeholder="Track your product's tale. Try the sample with 'Pinot Noir Bottle of Wine'"
+                          placeholder="Track your product's tale."
                           onChange={(e) => setProduct(e.target.value)}
                           required
                         />
+                        <p className="text-white mb-3" style={{marginTop: '1rem'}}>Try the sample with 'Pinot Noir Bottle of Wine'</p>
                       </CardBody>
                     </Card>
                     <div className="btn-wrapper">
