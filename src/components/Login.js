@@ -30,11 +30,11 @@ export default function Login() {
     try {
       setError("");
       setLoading(true);
-      await login(emailRef.current.value, passwordRef.current.value);
-      history("/inventory");
+      const loginSuccessful = await login(emailRef.current.value, passwordRef.current.value);
+      if(loginSuccessful) history("/inventory");
     } catch (error) {
-      console.log(error)
-      setError("Failed to log in");
+      let errorMessage = "Failed to login: " + error.message
+      setError(errorMessage);
     }
 
     setLoading(false);

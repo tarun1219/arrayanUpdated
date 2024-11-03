@@ -8,15 +8,14 @@ import {
   CardTitle,
   CardHeader,
 } from "reactstrap";
-import { FETCH_TRANSACTION } from "../utils/ResDbApis";
-import { sendRequest } from "../utils/ResDbClient";
+import { FETCH_TRANSACTION } from "../../utils/ResDbApis";
+import { sendRequest } from "../../utils/ResDbClient";
 import { Line } from "react-chartjs-2";
 import GraphSetup from "./GraphSetup";
 import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
 
 function Dashboard() {
-  //TODO: Remove encryption keys from code
   const metadata = {
     recipientPublicKey: process.env.REACT_APP_ADMIN_PUBLIC_KEY,
   };

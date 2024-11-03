@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadFull } from "tsparticles"; 
 
@@ -14,7 +14,6 @@ const BackgroundParticles = () => {
     }, []);
 
     const particlesLoaded = (container) => {
-        //  console.log(container);
     };
 
     return (
@@ -34,10 +33,6 @@ const BackgroundParticles = () => {
                             enable: true,
                             mode: "push",
                         },
-                        // onHover: {
-                        //     enable: true,
-                        //     mode: "repulse",
-                        // },
                         resize: true,
                     },
                     modes: {

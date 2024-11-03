@@ -24362,3 +24362,232 @@ td.rdtYear:hover {
 }
 
 /*# sourceMappingURL=blk-design-system-react.css.map */
+.timeline-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  height: 200px;
+  margin: 10% 0;
+  background-color: transparent;
+}
+
+.timeline-line {
+  position: absolute;
+  width: 90%;
+  height: 2px;
+  background-color: #6610f2;
+}
+
+.timeline-event-container {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  position: absolute;
+  top: 50%;
+}
+
+.timeline-event {
+  position: relative;
+  width: 20px;
+  cursor: pointer;
+}
+
+.timeline-vertical-line {
+  position: absolute;
+  width: 2px;
+  background: linear-gradient(to bottom, #6610f2, #11cdef);
+  height: 100px;
+}
+
+.timeline-event.top .timeline-vertical-line {
+  top: -100px;
+  left: 50%;
+  transform: rotate(180deg);
+}
+
+.timeline-event.bottom .timeline-vertical-line {
+  bottom: -100px;
+  left: 50%;
+}
+
+.timeline-circle {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  top: -12px;
+  left: 50%;
+  background-color: #171941;
+  border: 2px solid #6610f2;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateX(-50%);
+}
+
+.tick-icon {
+  font-size: 14px;
+  color: #39d884;
+}
+
+.timeline-label {
+  position: absolute;
+  color: #fff;
+  white-space: normal;
+  transition: color 0.3s ease;
+  left: 110%;
+  text-align: left;
+}
+
+.timeline-event.top .timeline-label {
+  bottom: 40px;
+}
+
+.timeline-event.bottom .timeline-label {
+  top: 50px;
+}
+
+.timeline-label:hover {
+  color: #11cdef;
+}
+
+.event-details {
+  background-color: #0c2033;
+  border: 2px solid #fff;
+  padding: 10px 10px 0 10px;
+  border-radius: 8px;
+  width: 220px;
+  position: absolute;
+  z-index: 10;
+  color: #0c2033;
+}
+
+.event-details::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.event-details::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.timeline-event .details-below {
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.timeline-event .details-below::before {
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 14px 14px 14px;
+  border-color: transparent transparent #fff transparent;
+}
+
+.timeline-event .details-below::after {
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 0 12px 12px 12px;
+  border-color: transparent transparent #1f2d3d transparent;
+}
+
+.timeline-event .details-above {
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.timeline-event .details-above::before {
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 14px 14px 0 14px;
+  border-color: #fff transparent transparent transparent;
+}
+
+.timeline-event .details-above::after {
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 12px 12px 0 12px;
+  border-color: #1f2d3d transparent transparent transparent;
+}
+
+.byproducts{
+  font-size: 14px;
+}
+
+.byproducts-container {
+  border: 1px solid #4fd1c5;
+  padding: 20px;
+  border-radius: 8px;
+  width: 70%;
+  margin: 0 auto;
+}
+
+.byproducts-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.byproducts-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.byproduct-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1f2251;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.btn-claim:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.modal-content {
+  background-color: #072647;
+  color: #fff;
+  border-radius: 8px;
+}
+
+.modal-header,
+.modal-footer {
+  background-color: #072647;
+  border-color: #072647;
+}
+
+.inventory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+  /* justify-content: center; */
+  min-height: 100vh;
+}
+
+.inventory-table {
+  overflow-x: auto;
+  width: 100%;
+  max-width: 90vw;
+}

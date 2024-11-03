@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { auth, database } from '../auth/firebaseAuthSDK'
+import { auth, database, firestoreDB, arrayUnion } from '../auth/firebaseAuthSDK'
 import { sendRequest } from '../utils/ResDbClient'
 import { GENERATE_KEYS } from '../utils/ResDbApis'
-import { set, ref, onValue } from 'firebase/database';
+import { ref, get, set } from 'firebase/database'; 
 
 export const AuthContext = React.createContext()
 
@@ -15,41 +15,64 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const [userKeys, setUserKeys] = useState(null);
 
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+        if (user) {
+            fetchKeys(user.uid);
+        } else {
+            setUserKeys(null);
+        }
+        setCurrentUser(user);
+        setLoading(false);
+    });
+
+    return unsubscribe;
+}, []);
+
   async function signup(email, password) {
     const response = await auth.createUserWithEmailAndPassword(email, password);
     const userId = response.user.uid;
 
-    sendRequest(GENERATE_KEYS).then(async (res) => {
-      console.log("Generated keys successfully ", res);
-      const publicKey = res.data.generateKeys.publicKey;
-      const privateKey = res.data.generateKeys.privateKey;
-      console.log(publicKey, privateKey)
-      set(ref(database, 'users/'+userId), {
-        publicKey: publicKey,
-        privateKey: privateKey
-      })
-      setUserKeys({ publicKey, privateKey });
-    });
-    
-    return;
-  }
+    try {
+        const res = await sendRequest(GENERATE_KEYS);
+        const { publicKey, privateKey } = res.data.generateKeys;
 
-  async function login(email, password) {
-    const response = await auth.signInWithEmailAndPassword(email, password)
-    console.log(response)
+        await set(ref(database, 'users/' + userId), {
+            publicKey: publicKey,
+            privateKey: privateKey
+        });
+
+        await fetchKeys(userId);
+    } catch (error) {
+        console.error("Failed to sign up and fetch keys:", error);
+    }
+}
+
+
+async function login(email, password) {
+  try {
+    const response = await auth.signInWithEmailAndPassword(email, password);
     const userId = response.user.uid;
     await fetchKeys(userId);
-    return;
+    return true;
+  } catch (error) {
+    console.error("Login failed:", error);
+    return false;
   }
+}
 
   async function fetchKeys(userId) {
     const dbRef = ref(database, 'users/'+userId);
-    onValue(dbRef, (snapshot) => {
-      const data = snapshot.val();
-      setUserKeys(data);
-    });
+    const snapshot = await get(dbRef);
+    if (snapshot.exists()) {
+        const data = snapshot.val();
+        setUserKeys(data);
+    } else {
+        setUserKeys(null); 
+    }
     return;
-  }
+}
+
 
   function logout() {
     return auth.signOut()
@@ -94,3 +117,32 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   )
 }
+
+export const saveTransactionsToFirestore = async (txnData) => {
+  try {
+    const batch = firestoreDB.batch();
+
+    Object.entries(txnData).forEach(([industry, transactionIds]) => {
+      if (!Array.isArray(transactionIds)) {
+        console.warn(`Expected transactionIds to be an array, but got ${typeof transactionIds}`);
+        return;
+      }
+
+      const productRef = firestoreDB.collection('products').doc(industry);
+
+      batch.set(
+        productRef,
+        {
+          productName: industry,
+          transactionIds: arrayUnion(...transactionIds),
+        },
+        { merge: true }
+      );
+    });
+
+    await batch.commit();
+    console.log('All transactions saved successfully to Firestore.');
+  } catch (error) {
+    console.error('Error saving transactions to Firestore:', error);
+  }
+};

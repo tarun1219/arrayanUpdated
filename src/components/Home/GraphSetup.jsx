@@ -49,37 +49,6 @@ const GraphSetup = {
       },
       responsive: true,
       scales: {
-        // y: [
-        //   {
-        //     barPercentage: 1.6,
-        //     gridLines: {
-        //       drawBorder: false,
-        //       color: "rgba(0,0,0,0.0)",
-        //       zeroLineColor: "transparent",
-        //     },
-        //     ticks: {
-        //       display: false,
-        //       suggestedMin: 0,
-        //       suggestedMax: 350,
-        //       padding: 20,
-        //       fontColor: "#9a9a9a",
-        //     },
-        //   },
-        // ],
-        // x: [
-        //   {
-        //     barPercentage: 1.6,
-        //     gridLines: {
-        //       drawBorder: false,
-        //       color: "rgba(0,0,0,0)",
-        //       zeroLineColor: "transparent",
-        //     },
-        //     ticks: {
-        //       padding: 20,
-        //       fontColor: "#9a9a9a",
-        //     },
-        //   },
-        // ],
       },
     },
   };

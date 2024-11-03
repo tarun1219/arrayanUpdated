@@ -1,37 +1,19 @@
 import React from "react";
 import { Container, Row, Col, Button } from "reactstrap";
-import Footer from "../components/Footer/Footer";
+import Footer from "../Footer/Footer";
 import Dashboard from "./Dashboard";
-import CoverPicture from "../components/CoverPicture";
+import CoverPicture from "./CoverPicture";
 import { useNavigate } from "react-router-dom";
 
 
 export default function Home() {
   const navigate = useNavigate();
 
-
   return (
     <>
       <div className="wrapper">
-        {/* <div className="page-header header-filter">
-          <Container>
-            
-            <div className="content-center brand">
-              <h1 className="h1-seo">Arrayán</h1>
-              <h3 className="d-none d-sm-block">
-                A Blockchain-Based Food Supply Chain Application built on
-                ResilientDB
-              </h3>
-            </div>
-          </Container>
-        </div> */}
         <section className="section section-lg section-safe">
-          {/* <img
-            alt="..."
-            className="path"
-            src={require("../assets/img/path5.png")}
-          /> */}
-                    <Container>
+          <Container>
             <Row className="row-grid justify-content-between">
               <Col md="5">
               <div className="content-center brand" style={{marginTop: '5rem'}}>
@@ -64,7 +46,7 @@ export default function Home() {
                   style={{ borderRadius: "5rem" }}
                   alt="..."
                   className="floating"
-                  src={require("../assets/img/arrayan.jpg")}
+                  src={require("../../assets/img/arrayan.jpg")}
                 />
               </Col>
               <Col md="6">

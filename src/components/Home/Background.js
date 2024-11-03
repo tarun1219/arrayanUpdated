@@ -1,6 +1,5 @@
 import loginBackground from '../assest/loginBackground.jpeg'
 import React from 'react'
-import styled from "styled-components";
 
 const BackgroundImage = ({ children }) => {
   const style = {

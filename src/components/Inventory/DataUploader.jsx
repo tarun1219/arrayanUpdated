@@ -9,12 +9,13 @@ import {
   CardBody,
   Container,
   Form,
-  Label,
+  Table,
 } from "reactstrap";
-import { POST_TRANSACTION, FETCH_TRANSACTION } from "../utils/ResDbApis";
-import { sendRequest } from "../utils/ResDbClient";
-import { AuthContext } from "../context/AuthContext";
+import { POST_TRANSACTION, FETCH_TRANSACTION } from "./../../utils/ResDbApis";
+import { sendRequest } from "./../../utils/ResDbClient";
+import { AuthContext, saveTransactionsToFirestore } from "./../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import InventoryTable from "./InventoryTable";
 
 function DataUploader() {
   const {currentUser, userKeys} = useContext(AuthContext);
@@ -35,7 +36,6 @@ function DataUploader() {
     "text/csv",
   ];
 
-  //TODO: Remove encryption keys from code
   const metadata = {
     signerPublicKey: userKeys?.publicKey,
     signerPrivateKey: userKeys?.privateKey,
@@ -51,7 +51,7 @@ function DataUploader() {
   }, []);
 
   const fetchInventory = async () => {
-    console.log("Fetching inventory...", metadata);
+    console.log("Fetching inventory...", userKeys);
     const query = FETCH_TRANSACTION(
       metadata.signerPublicKey,
       metadata.recipientPublicKey
@@ -91,20 +91,33 @@ function DataUploader() {
     setForms([...forms, { ...initialFormState }]);
   };
 
-  const handleSaveData = () => {
+  const handleSaveData = async () => {
     // Convert forms data to JSON format
     const jsonData = JSON.parse(JSON.stringify(forms, null, 2));
-    console.log(jsonData);
-    jsonData.forEach((dataItem) => {
+    let txnData = {};
+    const promises = jsonData.map(async (dataItem) => {
       dataItem["Timestamp"] = new Date(dataItem["Timestamp"]);
-      sendRequest(
+      const res = await sendRequest(
         POST_TRANSACTION(metadata, JSON.stringify(dataItem))
-      ).then((res) => {
-        console.log("Inventory added successfully ", res);
-      });
+      );
+
+      console.log("Inventory added successfully ", res);
+
+      const industry = dataItem["Industry"];
+      const transactionId = res?.data?.postTransaction?.id;
+      if (transactionId) {
+        if (!txnData[industry]) {
+          txnData[industry] = [];
+        }
+        txnData[industry].push(transactionId);
+      }
+      
     });
+
+    await Promise.all(promises);
+    await saveTransactionsToFirestore(txnData);
+
     fetchInventory();
-    // You can now send jsonData to your server or perform any other desired action.
   };
 
   const readExcel = async (e) => {
@@ -115,20 +128,32 @@ function DataUploader() {
       .getElementById("inventory-section")
       .scrollIntoView({ behavior: "smooth" });
       const reader = new FileReader();
-      reader.onload = (e) => {
+      let txnData = {};
+      reader.onload = async (e) => {
         const data = e.target.result;
         const workbook = xlsx.read(data, { type: "json" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const json = xlsx.utils.sheet_to_json(worksheet, { raw: false, dateNF: "yyyy-mm-ddTHH:MM:ss.000Z" });
-        json.forEach((dataItem) => {
+        const promises = json.map(async (dataItem) => {
           dataItem["Timestamp"] = new Date(dataItem["Timestamp"]);
-          sendRequest(
+          const res = await sendRequest(
             POST_TRANSACTION(metadata, JSON.stringify(dataItem))
-          ).then((res) => {
-            console.log("Inventory added successfully ", res);
-          });
+          );
+
+          const industry = dataItem["Industry"];
+          const transactionId = res?.data?.postTransaction?.id;
+          if (transactionId) {
+            if (!txnData[industry]) {
+              txnData[industry] = []; // Initialize the array if it doesn't exist
+            }
+            txnData[industry].push(transactionId); // Add the transaction ID to the array
+          }
+          console.log("Inventory added successfully ", transactionId);
         });
+
+        await Promise.all(promises);
+        await saveTransactionsToFirestore(txnData);
         fetchInventory();
       };
       reader.readAsArrayBuffer(e.target.files[0]);
@@ -144,7 +169,7 @@ function DataUploader() {
           <img
             alt="..."
             className="path"
-            src={require("../assets/img/blob.png")}
+            src={require("../../assets/img/blob.png")}
           />
           <div className="content-center">
             <Row className="row-grid justify-content-between align-items-center text-left">
@@ -161,7 +186,7 @@ function DataUploader() {
                 <img
                   alt="..."
                   className="img-fluid"
-                  src={require("../assets/img/inventory.png")}
+                  src={require("../../assets/img/inventory.png")}
                 />
               </Col>
             </Row>
@@ -312,7 +337,6 @@ function DataUploader() {
                         <Button
                         className="btn-simple"
                         color="info"
-                        href="#pablo"
                         onClick={()=>navigate("/login")}
                       >
                         <i className="tim-icons icon-badge" /> Please log in to view/upload your inventory
@@ -320,7 +344,6 @@ function DataUploader() {
                         <Button
                         className="btn-simple"
                         color="info"
-                        href="#pablo"
                         onClick={handleSubmit}
                       >
                         <i className="tim-icons icon-notes" /> Display My Inventory
@@ -334,34 +357,10 @@ function DataUploader() {
             </Row>
           </div>
         </div>
-        <div className="section" id="inventory-section" style={{marginLeft: '-10rem'}}>
-          {/* <img
-            alt="..."
-            className="path"
-            width="100%"
-            src={require("../assets/img/waves.png")}
-          /> */}
+        <div className="section" id="inventory-section">
           <Container style={{ marginTop: "2rem" }}>
             {inventory.length > 0 ? (
-              <table className="tablesorter" >
-                <thead className="text-white">
-                  <tr>
-                    {Object.keys(inventory[0]).map((key) => (
-                      <th className="header text-center" style={{padding: '1rem'}}>{key}</th>
-                    ))}
-                  </tr>
-                  
-                </thead>
-                <tbody>
-                  {inventory.map((item, index) => (
-                    <tr>
-                      {Object.keys(item).map((key) => (
-                        <td className="text-center" style={{padding: '1rem', color: "white"}}>{item[key]}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <InventoryTable inventory={inventory} />
             ) : (
               <div className="w-100 text-center mt-2 text-white">No inventory found!</div>
             )}
