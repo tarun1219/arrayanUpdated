@@ -120,6 +120,7 @@ function ProductTracker() {
         const productData = doc.data();
         setTxnIds(productData.transactionIds || []);
       } else {
+        setProductFound(false);
         console.log(`No transactions found for product: ${product}`);
       }
     } catch (error) {
@@ -182,7 +183,7 @@ function ProductTracker() {
 
     await fetchTransactionIds();
   };
-
+  
   return (
     <>
       <div className="wrapper">
@@ -260,7 +261,7 @@ function ProductTracker() {
             width="100%"
             src={require("../../assets/img/waves.png")}
           /> */}
-            <Container style={{ marginTop: "2rem" }}>
+            <Container>
               <UncontrolledAlert className="alert-with-icon" color="success">
                 <span data-notify="icon" className="tim-icons icon-bulb-63" />
                 <span>
@@ -269,6 +270,10 @@ function ProductTracker() {
                 </span>
               </UncontrolledAlert>
               <div>
+          </div>
+          <div className="timeline-header">
+              <h5 style={{color: "#39d884"}}>Food Supply Chain of {product}</h5>
+              <p className="timeline-subtitle">Tap <span style={{color: "#39d884"}}>+</span> on timeline to view more details</p>
           </div>
             <Timeline productStages={productStages} initialKey = {initialProduct["InputProduct"]}/>
             
@@ -328,13 +333,19 @@ function ProductTracker() {
           </Button>
         </ModalFooter>
       </Modal>
-    </div>
+        </div>
             </Container>
-        </div> ) : productFound ? (
-          <div />
-        ) : (
-          <h2 className="text-danger text-center">Product not found!</h2>
-        )}
+        </div> ) :
+          <div className="section" id="track-section">
+           { productFound ? 
+              <div className="loading-indicator">
+                  <div className="loading-spinner"></div>
+                  <p>Building Your Product's Journey...</p>
+              </div>
+            :<h2 className="text-danger text-center">Product not found!</h2>
+           }
+          </div>
+        }
       </div>
     </>
   );

@@ -41,7 +41,7 @@ const Timeline = ({ productStages, initialKey }) => {
               onClick={() => handleExpand(key)}
               title={`Click to see details of ${key}`}
             >
-              <span className="tick-icon">✔</span>
+              <span className="tick-icon">+</span>
             </div>
             <p
               className="timeline-label text-white mb-3"
