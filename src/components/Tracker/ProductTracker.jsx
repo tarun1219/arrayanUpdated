@@ -10,11 +10,12 @@ import {
   UncontrolledAlert,Modal, ModalHeader, ModalBody, ModalFooter
 } from "reactstrap";
 
-import { GET_TRANSACTION, UPDATE_MULTIPLE_TXNS, constructTransaction } from "./../../utils/ResDbApis";
+import { GET_TRANSACTION, POST_UPDATED_TRANSACTION, constructTransaction } from "./../../utils/ResDbApis";
 import { sendRequest } from "./../../utils/ResDbClient";
 import { firestoreDB } from "./../../auth/firebaseAuthSDK";
 import Timeline from "./Timeline";
 import { AuthContext } from "./../../context/AuthContext";
+import { deleteClaimedTransactionIds, saveTransactionsToFirestore } from "../../context/FirestoreContext";
 
 function ProductTracker() {
   const [productStages, setProductStages] = useState(null);
@@ -29,6 +30,7 @@ function ProductTracker() {
   const [selectedKeys, setSelectedKeys] = useState({});
   const [confirmedItems, setConfirmedItems] = useState({});
   const {currentUser, userKeys} = useContext(AuthContext);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const toggleModal = () => setModal(!modal);
 
@@ -38,33 +40,47 @@ function ProductTracker() {
   };
 
   const updateFireStore = async (claimedItems) => {
-    const txnData = Object.values(selectedKeys).map((item) =>
-      constructTransaction(metadata, item)
-    );
-
+    let claimedTxnIds = [];
+    let industryMap = {};
+    let monthlyTransactionCounts = {}; 
     try {
-      const res = await sendRequest(UPDATE_MULTIPLE_TXNS(txnData));
+      const promises = Object.values(selectedKeys).map(async (item) => {
+        const txn = constructTransaction(metadata, item)
+        const res = await sendRequest(POST_UPDATED_TRANSACTION(txn));
+        const industry = product;
+        const transactionId = res?.data?.postTransaction?.id;
+        if (transactionId) {
+          if (!industryMap[industry]) {
+            industryMap[industry] = [];
+          }
+          industryMap[industry].push(transactionId);
+          // For metadata and dashboard
+          const currentDate = new Date();
+          const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`;
+      
+          if (!monthlyTransactionCounts[yearMonth]) {
+            monthlyTransactionCounts[yearMonth] = {
+              txnCount: 0,
+              products: new Set(),
+            }
+          }
+          monthlyTransactionCounts[yearMonth].txnCount += 1;
+          monthlyTransactionCounts[yearMonth].products.add(industry);
+        }
+        claimedTxnIds.push(item.key)
+      })
 
-      if(res && res.data){
-        const productRef = firestoreDB.collection('products').doc(product);
-        const originalKeys = Object.values(selectedKeys).map((item) => item.key);
-        const newIds = res.data.updateMultipleTransaction.map((transaction) => transaction.id);
+      await Promise.all(promises);
+      await saveTransactionsToFirestore(metadata.signerPublicKey, industryMap, monthlyTransactionCounts);
+      await deleteClaimedTransactionIds(product, claimedTxnIds);
 
-        let updatedTxns = txnIds.filter((id) => !originalKeys.includes(id));
-        updatedTxns = [...updatedTxns, ...newIds]
+      setConfirmedItems((prevState) => ({
+        ...prevState,
+        ...Object.fromEntries(claimedItems.map((key) => [key, true])),
+      }));
 
-        await productRef.update({
-          transactionIds: updatedTxns,
-        });
-
-        setConfirmedItems((prevState) => ({
-          ...prevState,
-          ...Object.fromEntries(claimedItems.map((key) => [key, true])),
-        }));
-
-        console.log('Claimed Objects:', claimedItems);
-        alert(`Claim Successful!`);
-      }
+      console.log('Claimed Objects:', claimedItems);
+      alert(`Claim Successful!`);
     } catch (error) {
 
     }
@@ -105,9 +121,12 @@ function ProductTracker() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    document
+    setTimeout(() => {
+      document
       .getElementById("track-section")
       ?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+    setIsSubmitted(true);
     trackProduct();
   };
 
@@ -118,7 +137,7 @@ function ProductTracker() {
 
       if (doc.exists) {
         const productData = doc.data();
-        setTxnIds(productData.transactionIds || []);
+        setTxnIds(productData.txnIds || []);
       } else {
         setProductFound(false);
         console.log(`No transactions found for product: ${product}`);
@@ -141,6 +160,7 @@ function ProductTracker() {
         const res = await sendRequest(GET_TRANSACTION(id));
         if(res && res.data) {
           let info = JSON.parse(res.data.getTransaction.asset.replace(/'/g, '"')).data;
+          let recipientPublicKey = res?.data?.getTransaction.signerPublicKey;
           let op = info["OutputProducts"];
           let ip = info["InputProduct"];
 
@@ -153,7 +173,7 @@ function ProductTracker() {
           
           if(info["ByProducts"] != "None" && info["ByProducts"] != ""){
             if(!byprods[info["ByProducts"]]) byprods[info["ByProducts"]] = [];
-            byprods[info["ByProducts"]].push({key: id, info:info});
+            byprods[info["ByProducts"]].push({key: id, info:info, recipientPublicKey:recipientPublicKey});
           }
         }
         await new Promise(resolve => setTimeout(resolve, 5));
@@ -336,13 +356,14 @@ function ProductTracker() {
         </div>
             </Container>
         </div> ) :
-          <div className="section" id="track-section">
-           { productFound ? 
+          <div className={isSubmitted? "section": ""} id="track-section">
+           { productFound ? isSubmitted? 
               <div className="loading-indicator">
                   <div className="loading-spinner"></div>
                   <p>Building Your Product's Journey...</p>
               </div>
-            :<h2 className="text-danger text-center">Product not found!</h2>
+              : null
+            :<h2 className="section text-danger text-center">Product not found!</h2>
            }
           </div>
         }

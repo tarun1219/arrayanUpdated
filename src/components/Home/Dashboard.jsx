@@ -8,17 +8,13 @@ import {
   CardTitle,
   CardHeader,
 } from "reactstrap";
-import { FETCH_TRANSACTION } from "../../utils/ResDbApis";
-import { sendRequest } from "../../utils/ResDbClient";
+import { fetchMetadata } from "../../context/FirestoreContext";
 import { Line } from "react-chartjs-2";
 import GraphSetup from "./GraphSetup";
 import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
 
 function Dashboard() {
-  const metadata = {
-    recipientPublicKey: process.env.REACT_APP_ADMIN_PUBLIC_KEY,
-  };
 
   const [TransactionCount, setTransactionCount] = useState({
     "Jan": 0,
@@ -29,7 +25,7 @@ function Dashboard() {
     "Jun": 0,
     "Jul": 0,
     "Aug": 0,
-    "Sep": 0,
+    "Sept": 0,
     "Oct": 0,
     "Nov": 0,
     "Dec": 0
@@ -37,8 +33,6 @@ function Dashboard() {
 
   const [totalStats, setTotalStats] = useState({
     "products": 0,
-    "industries": 0,
-    "byproducts": 0,
     "txns": 0
   });
 
@@ -46,45 +40,17 @@ function Dashboard() {
     fetchData();
   }, []);
 
-  const distinctValuesCount = (array, propertyName) => {
-    const values = array.map(obj => obj[propertyName]);
-    const uniqueValues = new Set(values);
-    return uniqueValues.size;
-  };
-
   const fetchData = async () => {
     console.log("Fetching data...");
-    const query = FETCH_TRANSACTION(
-      "",
-      metadata.recipientPublicKey
-    );
     try {
-      let totalTxns = {...TransactionCount};
-      let totalCount = {...totalStats};
-      let json =[];
-      sendRequest(query).then((res) => {
-        if (res && res.data && res.data.getFilteredTransactions) {
-          res.data.getFilteredTransactions.forEach((item) => {
-            let info = JSON.parse(item.asset.replace(/'/g, '"')).data;
-            let ts = new Date(info["Timestamp"]).toLocaleString("default", {month: 'short'});
-            json.push(info);
-            totalCount["txns"]++;
-            if (ts != NaN && ts != undefined) {
-              totalTxns[ts]++;
-            }
-          });
-          totalCount["products"] = distinctValuesCount(json, 'Industry');
-          totalCount["byproducts"] = distinctValuesCount(json, 'ByProducts');
-          totalCount["industries"] = distinctValuesCount(json, 'Name');
-            setTotalStats(prev => ({prev, totalCount}));
-            setTransactionCount( prev => ({prev, totalTxns}));
-        } else {
-          // fetchData(); // BUG: Temporary fix for the intermittent graphql error
-        }
-      });
+      const { totalCount, totalTxns } = await fetchMetadata(TransactionCount, totalStats);
+
+      setTransactionCount(totalTxns);
+      setTotalStats(totalCount); 
     } catch (error) {
-      console.log("Fetching data error ", error);
+      console.error("Error fetching dashboard data:", error);
     }
+
   };
 
   return (
@@ -104,10 +70,10 @@ function Dashboard() {
                   </Col>
                   <Col md="8" xs="7">
                     <div className="numbers">
-                      <CardTitle tag="p">{totalStats.totalCount?.industries}</CardTitle>
+                      <CardTitle tag="p">{totalStats?.txns}</CardTitle>
                       <p />
                       <p className="card-category">
-                        Participating Organizations
+                        Transactions
                       </p>
                     </div>
                   </Col>
@@ -126,49 +92,9 @@ function Dashboard() {
                   </Col>
                   <Col md="8" xs="7">
                     <div className="numbers">
-                      <CardTitle tag="p">{totalStats.totalCount?.products}</CardTitle>
+                      <CardTitle tag="p">{totalStats?.products}</CardTitle>
                       <p />
                       <p className="card-category">Products</p>
-                    </div>
-                  </Col>
-                </Row>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col className="mt-lg-5" md="5">
-            <Card className="card-stats bg-default">
-              <CardBody>
-                <Row>
-                  <Col md="4" xs="5">
-                    <div className="icon-big text-center icon-warning">
-                      <i className="tim-icons icon-cart text-danger" />
-                    </div>
-                  </Col>
-                  <Col md="8" xs="7">
-                    <div className="numbers">
-                      <CardTitle tag="p">{totalStats.totalCount?.byproducts}</CardTitle>
-                      <p />
-                      <p className="card-category">ByProducts</p>
-                    </div>
-                  </Col>
-                </Row>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col className="mt-lg-5" md="5">
-            <Card className="card-stats bg-default">
-              <CardBody>
-                <Row>
-                  <Col md="4" xs="5">
-                    <div className="icon-big text-center icon-warning">
-                      <i className="tim-icons icon-wallet-43 text-success" />
-                    </div>
-                  </Col>
-                  <Col md="8" xs="7">
-                    <div className="numbers">
-                      <CardTitle tag="p">{totalStats.totalCount?.txns}</CardTitle>
-                      <p />
-                      <p className="card-category">Transactions</p>
                     </div>
                   </Col>
                 </Row>

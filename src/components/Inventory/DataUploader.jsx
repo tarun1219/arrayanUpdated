@@ -11,9 +11,10 @@ import {
   Form,
   Table,
 } from "reactstrap";
-import { POST_TRANSACTION, FETCH_TRANSACTION } from "./../../utils/ResDbApis";
+import { POST_TRANSACTION, GET_TRANSACTION } from "./../../utils/ResDbApis";
 import { sendRequest } from "./../../utils/ResDbClient";
-import { AuthContext, saveTransactionsToFirestore } from "./../../context/AuthContext";
+import { AuthContext } from "./../../context/AuthContext";
+import { saveTransactionsToFirestore, fetchUserTransactionIds } from "./../../context/FirestoreContext";
 import { useNavigate } from "react-router-dom";
 import InventoryTable from "./InventoryTable";
 
@@ -39,45 +40,50 @@ function DataUploader() {
   const metadata = {
     signerPublicKey: userKeys?.publicKey,
     signerPrivateKey: userKeys?.privateKey,
-    recipientPublicKey: process.env.REACT_APP_ADMIN_PUBLIC_KEY,
+    recipientPublicKey: userKeys?.publicKey,
   };
 
   const [forms, setForms] = useState([initialFormState]);
   const [inventory, setInventory] = useState([]);
   const [error, setError] = useState("");
   const [uploadState, setUploadState] = useState("");
-  useEffect(() => {
-    fetchInventory();
-  }, []);
+  const [txnIds, setTxnIds] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const fetchInventory = async () => {
-    console.log("Fetching inventory...", userKeys);
-    const query = FETCH_TRANSACTION(
-      metadata.signerPublicKey,
-      metadata.recipientPublicKey
-    );
-    try {
-      await sendRequest(query).then((res) => {
-        if (res && res.data && res.data.getFilteredTransactions) {
-          let json = [];
-          res.data.getFilteredTransactions.forEach((item) => {
-            json.push(JSON.parse(item.asset.replace(/'/g, '"')).data);
-          });
+  
+  // useEffect(()=>{
+  //   fetchTxn()
+  // }, [userKeys])
+
+  useEffect(() => {
+    const fetchInventory = async () => {
+      if(txnIds.length > 0){
+        setLoading(true);
+        let json = [];
+        try {
+          for(const id of txnIds){
+            const res = await sendRequest(GET_TRANSACTION(id));
+            if(res && res.data){
+              let info = JSON.parse(res.data.getTransaction.asset.replace(/'/g, '"')).data;
+              json.push(info);
+            }
+          }
+          setLoading(false);
           setInventory(json);
-        } else {
-          // fetchInventory(); // BUG: Temporary fix for the intermittent graphql error
+        } catch (error) {
+          console.log("Fetch Inventory error ", error);
         }
-      });
-    } catch (error) {
-      console.log("Fetch Inventory error ", error);
+      }
     }
-  };
+    fetchInventory();
+  }, [txnIds])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     document
       .getElementById("inventory-section")
       .scrollIntoView({ behavior: "smooth" });
+    fetchTxn();
   };
 
   const handleInputChange = (index, fieldName, value) => {
@@ -86,7 +92,11 @@ function DataUploader() {
     setForms(newForms);
   };
 
-  
+  const fetchTxn = async () => {
+    const txnIds = await fetchUserTransactionIds(metadata.signerPublicKey);
+    setTxnIds(txnIds);  
+  }
+
   const handleAddForm = () => {
     setForms([...forms, { ...initialFormState }]);
   };
@@ -95,6 +105,7 @@ function DataUploader() {
     // Convert forms data to JSON format
     const jsonData = JSON.parse(JSON.stringify(forms, null, 2));
     let txnData = {};
+    let monthlyTransactionCounts = {}; 
     const promises = jsonData.map(async (dataItem) => {
       dataItem["Timestamp"] = new Date(dataItem["Timestamp"]);
       const res = await sendRequest(
@@ -110,14 +121,24 @@ function DataUploader() {
           txnData[industry] = [];
         }
         txnData[industry].push(transactionId);
+        // For metadata and dashboard
+        const yearMonth = `${dataItem["Timestamp"].getFullYear()}-${String(dataItem["Timestamp"].getMonth() + 1).padStart(2, "0")}`;
+        if (!monthlyTransactionCounts[yearMonth]) {
+          monthlyTransactionCounts[yearMonth] = {
+            txnCount: 0,
+            products: new Set(),
+          }
+        }
+        monthlyTransactionCounts[yearMonth].txnCount += 1;
+        monthlyTransactionCounts[yearMonth].products.add(industry);
       }
       
     });
 
     await Promise.all(promises);
-    await saveTransactionsToFirestore(txnData);
+    await saveTransactionsToFirestore(metadata.signerPublicKey, txnData, monthlyTransactionCounts);
 
-    fetchInventory();
+    await fetchUserTransactionIds(metadata.signerPublicKey);
   };
 
   const readExcel = async (e) => {
@@ -129,12 +150,14 @@ function DataUploader() {
       .scrollIntoView({ behavior: "smooth" });
       const reader = new FileReader();
       let txnData = {};
+      let monthlyTransactionCounts = {}; 
       reader.onload = async (e) => {
         const data = e.target.result;
         const workbook = xlsx.read(data, { type: "json" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const json = xlsx.utils.sheet_to_json(worksheet, { raw: false, dateNF: "yyyy-mm-ddTHH:MM:ss.000Z" });
+        
         const promises = json.map(async (dataItem) => {
           dataItem["Timestamp"] = new Date(dataItem["Timestamp"]);
           const res = await sendRequest(
@@ -145,16 +168,26 @@ function DataUploader() {
           const transactionId = res?.data?.postTransaction?.id;
           if (transactionId) {
             if (!txnData[industry]) {
-              txnData[industry] = []; // Initialize the array if it doesn't exist
+              txnData[industry] = [];
             }
             txnData[industry].push(transactionId); // Add the transaction ID to the array
+            // For metadata and dashboard
+            const yearMonth = `${dataItem["Timestamp"].getFullYear()}-${String(dataItem["Timestamp"].getMonth() + 1).padStart(2, "0")}`;
+            if (!monthlyTransactionCounts[yearMonth]) {
+              monthlyTransactionCounts[yearMonth] = {
+                txnCount: 0,
+                products: new Set(),
+              }
+            }
+            monthlyTransactionCounts[yearMonth].txnCount += 1;
+            monthlyTransactionCounts[yearMonth].products.add(industry);
           }
           console.log("Inventory added successfully ", transactionId);
         });
 
         await Promise.all(promises);
-        await saveTransactionsToFirestore(txnData);
-        fetchInventory();
+        await saveTransactionsToFirestore(metadata.signerPublicKey, txnData, monthlyTransactionCounts);
+        await fetchUserTransactionIds(metadata.signerPublicKey);
       };
       reader.readAsArrayBuffer(e.target.files[0]);
     } else {
@@ -358,12 +391,15 @@ function DataUploader() {
           </div>
         </div>
         <div className="section" id="inventory-section">
-          <Container style={{ marginTop: "2rem" }}>
+          <Container>
             {inventory.length > 0 ? (
               <InventoryTable inventory={inventory} />
-            ) : (
+            ) : loading? <div className="loading-indicator">
+                  <div className="loading-spinner"></div>
+                  <p>Fetching your inventory...</p>
+              </div>:
               <div className="w-100 text-center mt-2 text-white">No inventory found!</div>
-            )}
+            }
           </Container>
         </div>
       </div>

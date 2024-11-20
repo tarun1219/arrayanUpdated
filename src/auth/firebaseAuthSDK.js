@@ -18,4 +18,4 @@ export const auth = app.auth()
 export const database = getDatabase();
 export const firestoreDB = firebase.firestore();
 export default app;
-export const arrayUnion = firebase.firestore.FieldValue.arrayUnion;
+export const FieldValue = firebase.firestore.FieldValue;

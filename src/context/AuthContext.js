@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { auth, database, firestoreDB, arrayUnion } from '../auth/firebaseAuthSDK'
+import { auth, database } from '../auth/firebaseAuthSDK'
 import { sendRequest } from '../utils/ResDbClient'
 import { GENERATE_KEYS } from '../utils/ResDbApis'
 import { ref, get, set } from 'firebase/database'; 
@@ -117,32 +117,3 @@ async function login(email, password) {
     </AuthContext.Provider>
   )
 }
-
-export const saveTransactionsToFirestore = async (txnData) => {
-  try {
-    const batch = firestoreDB.batch();
-
-    Object.entries(txnData).forEach(([industry, transactionIds]) => {
-      if (!Array.isArray(transactionIds)) {
-        console.warn(`Expected transactionIds to be an array, but got ${typeof transactionIds}`);
-        return;
-      }
-
-      const productRef = firestoreDB.collection('products').doc(industry);
-
-      batch.set(
-        productRef,
-        {
-          productName: industry,
-          transactionIds: arrayUnion(...transactionIds),
-        },
-        { merge: true }
-      );
-    });
-
-    await batch.commit();
-    console.log('All transactions saved successfully to Firestore.');
-  } catch (error) {
-    console.error('Error saving transactions to Firestore:', error);
-  }
-};
