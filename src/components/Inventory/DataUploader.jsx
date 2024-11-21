@@ -145,9 +145,9 @@ function DataUploader() {
     e.preventDefault();
     let selectedFile = e.target.files[0];
     if (selectedFile && ALLOWED_FILE_TYPES.includes(selectedFile.type)) {
-      document
-      .getElementById("inventory-section")
-      .scrollIntoView({ behavior: "smooth" });
+      // document
+      // .getElementById("inventory-section")
+      // .scrollIntoView({ behavior: "smooth" });
       const reader = new FileReader();
       let txnData = {};
       let monthlyTransactionCounts = {}; 

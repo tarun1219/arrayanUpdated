@@ -9,13 +9,13 @@ import {
   Container,
   UncontrolledAlert,Modal, ModalHeader, ModalBody, ModalFooter
 } from "reactstrap";
-
 import { GET_TRANSACTION, POST_UPDATED_TRANSACTION, constructTransaction } from "./../../utils/ResDbApis";
 import { sendRequest } from "./../../utils/ResDbClient";
 import { firestoreDB } from "./../../auth/firebaseAuthSDK";
 import Timeline from "./Timeline";
 import { AuthContext } from "./../../context/AuthContext";
 import { deleteClaimedTransactionIds, saveTransactionsToFirestore } from "../../context/FirestoreContext";
+import { useNavigate } from "react-router-dom";
 
 function ProductTracker() {
   const [productStages, setProductStages] = useState(null);
@@ -33,6 +33,7 @@ function ProductTracker() {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const toggleModal = () => setModal(!modal);
+  const navigate = useNavigate();
 
   const metadata = {
     signerPublicKey: userKeys?.publicKey,
@@ -345,9 +346,17 @@ function ProductTracker() {
             ))}
         </ModalBody>
         <ModalFooter>
+        {currentUser==null?
+          <Button
+          className="btn-simple"
+          color="info"
+          onClick={()=>navigate("/login")}
+        >
+          <i className="tim-icons icon-badge" /> Please log in to claim
+        </Button>:
           <Button color="success" onClick={handleConfirmClaim}>
             Claim
-          </Button>
+          </Button>}
           <Button color="secondary" onClick={toggleModal}>
             Cancel
           </Button>
