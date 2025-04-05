@@ -54,3 +54,18 @@ export const constructTransaction = (metadata, item) => {
     }"""
     }`;  
 }
+
+export const POST_SMART_CONTRACT = (metadata, asset) => `mutation {
+  postTransaction(data: {
+    operation: "CREATE",
+    amount: 100,
+    signerPublicKey: "${metadata?.signerPublicKey}",
+    signerPrivateKey: "${metadata?.signerPrivateKey}",
+    recipientPublicKey: "${metadata?.recipientPublicKey}",
+    asset: """{
+      "data": ${asset}
+    }"""
+  }) {
+    id
+  }
+}`;

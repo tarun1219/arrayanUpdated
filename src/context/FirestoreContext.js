@@ -109,3 +109,17 @@ export const fetchMetadata = async (transactionCount, totalStats) => {
       console.error('Error removing transaction IDs:', error);
     }
   }
+
+  export const saveSmartContractToFirestore = async (signerPublicKey, contractData) => {
+    try {
+      const smartContractRef = firestoreDB
+        .collection("smartContracts")
+        .doc(signerPublicKey)
+        .collection("contracts");
+  
+      await smartContractRef.add(contractData);
+      console.log("Smart contract saved successfully to Firestore.");
+    } catch (error) {
+      console.error("Error saving smart contract to Firestore:", error);
+    }
+  };
