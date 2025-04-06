@@ -34,8 +34,15 @@ export function AuthProvider({ children }) {
     const userId = response.user.uid;
 
     try {
+      try{
         const res = await sendRequest(GENERATE_KEYS);
-        const { publicKey, privateKey } = res.data.generateKeys;
+        console.log(res);
+      }
+      catch (e) {
+        console.log(e);
+      }
+        
+        const { publicKey, privateKey } = ["DTgSm732rjREpv94esTk9pc6v5DrZFyU9hp3kw2BohRc", "5R4ER6smR6c6fsWt3unPqP6Rhjepbn82Us7hoSj5ZYCc"];
 
         await set(ref(database, 'users/' + userId), {
             publicKey: publicKey,

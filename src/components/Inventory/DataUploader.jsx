@@ -40,9 +40,9 @@ function DataUploader() {
   ];
 
   const metadata = {
-    signerPublicKey: userKeys?.publicKey,
-    signerPrivateKey: userKeys?.privateKey,
-    recipientPublicKey: userKeys?.publicKey,
+    signerPublicKey: 'DTgSm732rjREpv94esTk9pc6v5DrZFyU9hp3kw2BohRc',
+    signerPrivateKey: '5R4ER6smR6c6fsWt3unPqP6Rhjepbn82Us7hoSj5ZYCc',
+    recipientPublicKey: 'ECJksQuF9UWi3DPCYvQqJPjF6BqSbXrnDiXUjdiVvkyH',
   };
 
   const [forms, setForms] = useState([initialFormState]);
@@ -61,10 +61,10 @@ function DataUploader() {
           for (const id of txnIds) {
             const res = await sendRequest(GET_TRANSACTION(id));
             if (res && res.data) {
-              let info = JSON.parse(
-                res.data.getTransaction.asset.replace(/'/g, '"')
-              ).data;
-              json.push(info);
+              // console.log("Asset value:", res.data.getTransaction.asset);
+              // console.log("Type of asset:", typeof res.data.getTransaction.asset);
+              let info = res.data.getTransaction.asset.data;
+              json.push(info);;
             }
           }
           setInventory(json);
@@ -108,12 +108,16 @@ function DataUploader() {
     let monthlyTransactionCounts = {};
     const promises = jsonData.map(async (dataItem) => {
       dataItem["Timestamp"] = new Date(dataItem["Timestamp"]);
+      console.log("stringify JSON ", JSON.stringify(dataItem));
+
       const res = await sendRequest(
         POST_TRANSACTION(metadata, JSON.stringify(dataItem))
       );
+      console.log("response ", res);
 
       const industry = dataItem["Industry"];
       const transactionId = res?.data?.postTransaction?.id;
+      console.log(transactionId);
       if (transactionId) {
         if (!txnData[industry]) {
           txnData[industry] = [];
@@ -141,7 +145,6 @@ function DataUploader() {
         monthlyTransactionCounts[key].products
       );
     }
-
     await saveTransactionsToFirestore(
       metadata.signerPublicKey,
       txnData,
@@ -169,10 +172,13 @@ function DataUploader() {
         });
 
         const promises = json.map(async (dataItem) => {
+          console.log(dataItem);
           dataItem["Timestamp"] = new Date(dataItem["Timestamp"]);
+          console.log("JSON Stringify", JSON.stringify(dataItem));
           const res = await sendRequest(
             POST_TRANSACTION(metadata, JSON.stringify(dataItem))
           );
+          console.log("response", res);
 
           const industry = dataItem["Industry"];
           const transactionId = res?.data?.postTransaction?.id;

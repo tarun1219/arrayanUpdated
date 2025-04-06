@@ -80,6 +80,25 @@ export const fetchMetadata = async (transactionCount, totalStats) => {
       console.error('Error saving transactions to Firestore:', error);
     }
   };
+
+  export const saveSmartContractToFirestore = async (signerPublicKey, contractData) => {
+    try {
+      // Create a new document in the 'smartContracts' collection with an auto-generated ID.
+      const smartContractRef = firestoreDB.collection("smartContracts").doc();
+      
+      // Save the contract data along with the signerPublicKey and a createdAt timestamp.
+      await smartContractRef.set({
+        signerPublicKey,
+        ...contractData,
+        createdAt: new Date().toISOString(), // or use FieldValue.serverTimestamp() if desired
+      });
+      
+      console.log("Smart contract saved successfully to Firestore.");
+    } catch (error) {
+      console.error("Error saving smart contract to Firestore:", error);
+      throw error;
+    }
+  };
   
   export const fetchUserTransactionIds = async (signerKey) => {
     const docRef = firestoreDB.collection('userTransactions').doc(signerKey);
@@ -97,6 +116,30 @@ export const fetchMetadata = async (transactionCount, totalStats) => {
     }
   
   };
+
+  export const fetchSmartContractsFromFirestore = async (signerKey) => {
+    try {
+      const snapshot = await firestoreDB
+        .collection("smartContracts")
+        .where("signerPublicKey", "==", signerKey)
+        .get();
+  
+      if (snapshot.empty) {
+        console.error("No smart contracts found for signer:", signerKey);
+        return [];
+      }
+  
+      const smartContracts = [];
+      snapshot.forEach((doc) => {
+        smartContracts.push({ id: doc.id, ...doc.data() });
+      });
+      return smartContracts;
+    } catch (error) {
+      console.error("Error fetching smart contracts from Firestore:", error);
+      return [];
+    }
+  };
+  
   
   export const deleteClaimedTransactionIds = async (industry, txnIdsToRemove) => {
     const productRef = firestoreDB.collection('products').doc(industry);
@@ -109,17 +152,3 @@ export const fetchMetadata = async (transactionCount, totalStats) => {
       console.error('Error removing transaction IDs:', error);
     }
   }
-
-  export const saveSmartContractToFirestore = async (signerPublicKey, contractData) => {
-    try {
-      const smartContractRef = firestoreDB
-        .collection("smartContracts")
-        .doc(signerPublicKey)
-        .collection("contracts");
-  
-      await smartContractRef.add(contractData);
-      console.log("Smart contract saved successfully to Firestore.");
-    } catch (error) {
-      console.error("Error saving smart contract to Firestore:", error);
-    }
-  };

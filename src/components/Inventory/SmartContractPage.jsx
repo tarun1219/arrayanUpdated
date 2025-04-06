@@ -9,15 +9,21 @@ import {
   Col,
   Input,
   CardHeader,
-  CardImg,
   CardBody,
   CardTitle,
   CardFooter,
+  Table,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
 } from "reactstrap";
 import { AuthContext } from "./../../context/AuthContext";
 import { sendRequest } from "./../../utils/ResDbClient";
-import { POST_SMART_CONTRACT } from "./../../utils/ResDbApis";
-import { saveSmartContractToFirestore } from "./../../context/FirestoreContext";
+import { POST_TRANSACTION } from "./../../utils/ResDbApis";
+import {
+  saveSmartContractToFirestore,
+  fetchSmartContractsFromFirestore,
+} from "./../../context/FirestoreContext";
 import { useNavigate } from "react-router-dom";
 
 export default function SmartContractPage() {
@@ -28,13 +34,16 @@ export default function SmartContractPage() {
   const [endDate, setEndDate] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [contracts, setContracts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const entriesPerPage = 7;
 
   const today = new Date().toISOString().split("T")[0];
 
   const metadata = {
-    signerPublicKey: userKeys?.publicKey,
-    signerPrivateKey: userKeys?.privateKey,
-    recipientPublicKey: userKeys?.publicKey,
+    signerPublicKey: "DTgSm732rjREpv94esTk9pc6v5DrZFyU9hp3kw2BohRc",
+    signerPrivateKey: "5R4ER6smR6c6fsWt3unPqP6Rhjepbn82Us7hoSj5ZYCc",
+    recipientPublicKey: "ECJksQuF9UWi3DPCYvQqJPjF6BqSbXrnDiXUjdiVvkyH",
   };
 
   const handleSubmit = async (e) => {
@@ -54,26 +63,64 @@ export default function SmartContractPage() {
       return;
     }
 
-    const contractData = {
+    // Build the data object and add a Timestamp
+    const dataItem = {
       byproduct,
       startDate,
       endDate,
-      createdAt: new Date().toISOString(),
+      Timestamp: new Date(),
     };
 
     try {
-      await sendRequest(POST_SMART_CONTRACT(metadata, JSON.stringify(contractData)));
-      await saveSmartContractToFirestore(metadata.signerPublicKey, contractData);
+      const res = await sendRequest(
+        POST_TRANSACTION(metadata, JSON.stringify(dataItem))
+      );
+      const transactionId = res?.data?.postTransaction?.id;
+      console.log("Transaction ID:", transactionId);
 
+      // Save smart contract to Firestore
+      await saveSmartContractToFirestore(metadata.signerPublicKey, dataItem);
+
+      // Reset form fields
       setByproduct("");
       setStartDate("");
       setEndDate("");
-      navigate("/inventory"); // or any other page
+
+      // Fetch contracts to update the table
+      const fetchedContracts = await fetchSmartContractsFromFirestore(
+        metadata.signerPublicKey
+      );
+      setContracts(fetchedContracts);
+      setCurrentPage(1);
     } catch (err) {
       setError("Failed to save contract: " + err.message);
     }
 
     setLoading(false);
+  };
+
+  const handleShowContracts = async () => {
+    try {
+      const fetchedContracts = await fetchSmartContractsFromFirestore(
+        metadata.signerPublicKey
+      );
+      console.log("Fetched smart contracts:", fetchedContracts);
+      setContracts(fetchedContracts);
+      setCurrentPage(1);
+    } catch (error) {
+      console.error("Error fetching smart contracts:", error);
+      setError("Error fetching smart contracts");
+    }
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(contracts.length / entriesPerPage);
+  const indexOfLastEntry = currentPage * entriesPerPage;
+  const indexOfFirstEntry = indexOfLastEntry - entriesPerPage;
+  const currentEntries = contracts.slice(indexOfFirstEntry, indexOfLastEntry);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -85,7 +132,7 @@ export default function SmartContractPage() {
           alignItems: "center",
           justifyContent: "center",
           minHeight: "100vh",
-          paddingTop: "100px", // Pushes below the fixed navbar
+          paddingTop: "100px", // Pushes content below the fixed navbar
         }}
       >
         <Container>
@@ -130,16 +177,99 @@ export default function SmartContractPage() {
                       >
                         Submit Contract
                       </Button>
-                        <Button
-                          className="btn-round"
+                      <Button
+                        className="btn-round"
                         color="info"
                         size="lg"
-                          onClick={() => navigate("/my-contracts")}
-                        >
-                          Show My Contracts
-                        </Button>
+                        onClick={handleShowContracts}
+                      >
+                        Show My Contracts
+                      </Button>
                     </CardFooter>
                   </Form>
+                  {/* Dark-themed, paginated table */}
+                  {contracts && contracts.length > 0 && (
+                    <div className="mt-4">
+                      <Table className="align-items-center table-dark table-flush">
+                        <thead className="thead-dark">
+                          <tr>
+                            <th
+                              className="text-center"
+                              style={{ padding: "1rem", color: "white" }}
+                            >
+                              Byproduct
+                            </th>
+                            <th
+                              className="text-center"
+                              style={{ padding: "1rem", color: "white" }}
+                            >
+                              Start Date
+                            </th>
+                            <th
+                              className="text-center"
+                              style={{ padding: "1rem", color: "white" }}
+                            >
+                              End Date
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {currentEntries.map((contract, index) => (
+                            <tr key={index}>
+                              <td
+                                className="text-center"
+                                style={{ padding: "1rem", color: "white" }}
+                              >
+                                {contract.byproduct || "-"}
+                              </td>
+                              <td
+                                className="text-center"
+                                style={{ padding: "1rem", color: "white" }}
+                              >
+                                {contract.startDate || "-"}
+                              </td>
+                              <td
+                                className="text-center"
+                                style={{ padding: "1rem", color: "white" }}
+                              >
+                                {contract.endDate || "-"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                      <Pagination
+                        className="pagination justify-content-center"
+                        listClassName="justify-content-center"
+                        style={{ marginTop: "1rem" }}
+                      >
+                        <PaginationItem disabled={currentPage === 1}>
+                          <PaginationLink
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            previous
+                          />
+                        </PaginationItem>
+                        {Array.from({ length: totalPages }, (_, index) => (
+                          <PaginationItem
+                            active={index + 1 === currentPage}
+                            key={index}
+                          >
+                            <PaginationLink
+                              onClick={() => handlePageChange(index + 1)}
+                            >
+                              {index + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+                        <PaginationItem disabled={currentPage === totalPages}>
+                          <PaginationLink
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            next
+                          />
+                        </PaginationItem>
+                      </Pagination>
+                    </div>
+                  )}
                 </CardBody>
               </Card>
             </Col>
