@@ -40,7 +40,7 @@ export default function SmartContractPage() {
   const [loading, setLoading] = useState(false);
   const [contracts, setContracts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const entriesPerPage = 7;
+  const entriesPerPage = 4;
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -141,13 +141,15 @@ export default function SmartContractPage() {
         className="page-header"
         style={{
           display: "flex",
+          flexDirection: "column",       // Stack content vertically
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "flex-start",  // Align content at the top
           minHeight: "100vh",
-          paddingTop: "100px", // Pushes content below the fixed navbar
+          paddingTop: "100px",
+          overflowY: "auto",             // Enable scrolling if content exceeds viewport height
         }}
       >
-        <Container>
+        <Container className="pt-5 pb-5">
           <Row className="justify-content-center">
             <Col lg="6" md="8">
               <Card className="card-register">
@@ -214,116 +216,67 @@ export default function SmartContractPage() {
                       </Button>
                     </CardFooter>
                   </Form>
+                  </CardBody>
+                  </Card>
+                  </Col>
+                  <Col lg="11" md="20">
                   {/* Dark-themed, paginated table */}
-                  {contracts && contracts.length > 0 && (
-                    <div className="mt-4">
-                      <Table className="align-items-center table-dark table-flush">
-                        <thead className="thead-dark">
-                          <tr>
-                          <th
-                              className="text-center"
-                              style={{ padding: "1rem", color: "white" }}
-                            >
-                              Product
-                            </th>
-                            <th
-                              className="text-center"
-                              style={{ padding: "1rem", color: "white" }}
-                            >
-                              Byproduct
-                            </th>
-                            <th
-                              className="text-center"
-                              style={{ padding: "1rem", color: "white" }}
-                            >
-                              Source
-                            </th>
-                            <th
-                              className="text-center"
-                              style={{ padding: "1rem", color: "white" }}
-                            >
-                              Start Date
-                            </th>
-                            <th
-                              className="text-center"
-                              style={{ padding: "1rem", color: "white" }}
-                            >
-                              End Date
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {currentEntries.map((contract, index) => (
-                            <tr key={index}>
-                              <td
-                                className="text-center"
-                                style={{ padding: "1rem", color: "white" }}
-                              >
-                                {contract.product || "-"}
-                              </td>
-                              <td
-                                className="text-center"
-                                style={{ padding: "1rem", color: "white" }}
-                              >
-                                {contract.byproduct || "-"}
-                              </td>
-                              <td
-                                className="text-center"
-                                style={{ padding: "1rem", color: "white" }}
-                              >
-                                {contract.source || "-"}
-                              </td>
-                              <td
-                                className="text-center"
-                                style={{ padding: "1rem", color: "white" }}
-                              >
-                                {contract.startDate || "-"}
-                              </td>
-                              <td
-                                className="text-center"
-                                style={{ padding: "1rem", color: "white" }}
-                              >
-                                {contract.endDate || "-"}
-                              </td>
+                    {contracts && contracts.length > 0 && (
+                      <div className="mt-4">
+                        <Table className="align-items-center table-dark table-flush">
+                          <thead className="thead-dark">
+                            <tr>
+                              <th className="text-center" style={{ padding: "1rem", color: "white" }}>Product</th>
+                              <th className="text-center" style={{ padding: "1rem", color: "white" }}>Byproduct</th>
+                              <th className="text-center" style={{ padding: "1rem", color: "white" }}>Source</th>
+                              <th className="text-center" style={{ padding: "1rem", color: "white" }}>Start Date</th>
+                              <th className="text-center" style={{ padding: "1rem", color: "white" }}>End Date</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </Table>
-                      <Pagination
-                        className="pagination justify-content-center"
-                        listClassName="justify-content-center"
-                        style={{ marginTop: "1rem" }}
-                      >
-                        <PaginationItem disabled={currentPage === 1}>
-                          <PaginationLink
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            previous
-                          />
-                        </PaginationItem>
-                        {Array.from({ length: totalPages }, (_, index) => (
-                          <PaginationItem
-                            active={index + 1 === currentPage}
-                            key={index}
-                          >
-                            <PaginationLink
-                              onClick={() => handlePageChange(index + 1)}
-                            >
-                              {index + 1}
-                            </PaginationLink>
+                          </thead>
+                          <tbody>
+                            {currentEntries.map((contract, index) => (
+                              <tr key={index}>
+                                <td className="text-center" style={{ padding: "1rem", color: "white" }}>
+                                  {contract.product || "-"}
+                                </td>
+                                <td className="text-center" style={{ padding: "1rem", color: "white" }}>
+                                  {contract.byproduct || "-"}
+                                </td>
+                                <td className="text-center" style={{ padding: "1rem", color: "white" }}>
+                                  {contract.source || "-"}
+                                </td>
+                                <td className="text-center" style={{ padding: "1rem", color: "white" }}>
+                                  {contract.startDate || "-"}
+                                </td>
+                                <td className="text-center" style={{ padding: "1rem", color: "white" }}>
+                                  {contract.endDate || "-"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </Table>
+                        <Pagination
+                          className="pagination justify-content-center"
+                          listClassName="justify-content-center"
+                          style={{ marginTop: "1rem" }}
+                        >
+                          <PaginationItem disabled={currentPage === 1}>
+                            <PaginationLink onClick={() => handlePageChange(currentPage - 1)} previous />
                           </PaginationItem>
-                        ))}
-                        <PaginationItem disabled={currentPage === totalPages}>
-                          <PaginationLink
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            next
-                          />
-                        </PaginationItem>
-                      </Pagination>
-                    </div>
-                  )}
-                </CardBody>
-              </Card>
-            </Col>
+                          {Array.from({ length: totalPages }, (_, index) => (
+                            <PaginationItem active={index + 1 === currentPage} key={index}>
+                              <PaginationLink onClick={() => handlePageChange(index + 1)}>
+                                {index + 1}
+                              </PaginationLink>
+                            </PaginationItem>
+                          ))}
+                          <PaginationItem disabled={currentPage === totalPages}>
+                            <PaginationLink onClick={() => handlePageChange(currentPage + 1)} next />
+                          </PaginationItem>
+                        </Pagination>
+                      </div>
+                    )}       
+                  </Col>
           </Row>
         </Container>
       </div>
