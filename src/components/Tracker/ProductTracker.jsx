@@ -61,7 +61,6 @@ function ProductTracker() {
             industryMap[industry] = [];
           }
           industryMap[industry].push(transactionId);
-          // For metadata and dashboard
           const currentDate = new Date();
           const yearMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}`;
       
@@ -93,53 +92,42 @@ function ProductTracker() {
 
     }
   }
-
-  // const handleClaimClick = (productName, items) => {
-  //   setSelectedProduct(productName);
-  //   setOptions(items);
-  //   setSelectedKeys({});
-  //   toggleModal();
-  // };
-
   const handleClaimClick = async (byproductName, items) => {
     setSelectedProduct(byproductName);
     setOptions(items);
-    // Reset manual selections if needed
     setManualSelectedKeys({});
-  
-    // Fetch auto-claim contracts
     const fetchedContracts = await fetchSmartContractsFromFirestore(metadata.signerPublicKey);
-    console.log(fetchedContracts, "fetchedContrancts");
-    const autoClaimSet = new Set();
-    fetchedContracts.forEach((contract) => {
-      if (contract.product === product && contract.byproduct === byproductName) {
-        autoClaimSet.add(contract.source.trim());
-      }
-    });
-  
-    const autoSelected = {};
-    items.forEach((item) => {
-      console.log("items here", item);
+    let autoSelected = {};
+    for (const item of items) {
       const itemKey = String(item.key);
       const sourceName = `${item.info.Name} - ${item.info.Description}`.trim();
-      if (autoClaimSet.has(sourceName)) {
-        autoSelected[itemKey] = item;
-      }
-    });
-    console.log("Computed autoSelected:", autoSelected);
-    setAutoSelectedKeys(autoSelected);
+      const matchingContracts = fetchedContracts.filter((contract) =>
+        contract.product === product &&
+        contract.byproduct === byproductName &&
+        contract.source.trim() === sourceName
+      );
+      const itemTimestamp = new Date(item.info.Timestamp);
+      const isValid = matchingContracts.some((contract) => {
+        const contractEndDate = new Date(contract.endDate);
+        return itemTimestamp < contractEndDate;
+      });
   
-    // If auto-selected items exist, immediately claim them.
-    if (Object.keys(autoSelected).length > 0) {
-      // Directly call the claim logic using our locally computed autoSelected items.
-      handleConfirmClaim(autoSelected);
+      if (isValid) {
+        autoSelected[itemKey] = item;
+        break;
+      }
     }
   
-    // Open modal after a slight delay so that the auto-claimed items are visible.
+    console.log("Computed autoSelected:", autoSelected);
+    setAutoSelectedKeys(autoSelected);
+    if (Object.keys(autoSelected).length > 0) {
+      handleConfirmClaim(autoSelected);
+    }
     setTimeout(() => {
       toggleModal();
     }, 100);
   };
+  
   
 
   const getFinalSelectedKeys = () => {
@@ -159,54 +147,20 @@ function ProductTracker() {
       return updatedState;
     });
   };
-  
-
-  // const handleCheckboxChange = (item) => {
-  //   console.log("handlecheckbox", item)
-  //   setSelectedKeys((prevState) => {
-  //     const updatedState = { ...prevState };
-  //     if (updatedState[item.key]) {
-  //       delete updatedState[item.key];
-  //     } else {
-  //       updatedState[item.key] = item;
-  //     }
-  //     return updatedState;
-  //   });
-  // };
-
 
   const handleConfirmClaim = async (localAutoSelected = null) => {
-    // Merge auto and manual selections if no local object was provided.
     const finalSelected = localAutoSelected || { ...autoSelectedKeys, ...manualSelectedKeys };
     console.log("finalSelected:", finalSelected);
-    // Filter out any null or undefined values before mapping
     const claimedItems  = Object.keys(finalSelected);
-  
     if (claimedItems.length === 0) {
       alert('Please select at least one item to claim.');
       toggleModal();
       return;
     }
-  
     await updateFireStore(claimedItems, finalSelected);
     toggleModal();
   };
   
-
-  // const handleConfirmClaim = async () => {
-  //   const claimedItems = Object.values(selectedKeys).map(item => item.key);
-
-  //   if (claimedItems.length === 0) {
-  //     alert('Please select at least one item to claim.');
-  //     toggleModal();
-  //     return;
-  //   }
-
-  //   await updateFireStore(claimedItems);
-  //   toggleModal();
-  // };
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setTimeout(() => {
