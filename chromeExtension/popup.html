@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <title>Transaction Search</title>
     <style>
-      /* Page Layout & Font */
       body {
         background-color: #171941;
         color: #ced4da;
@@ -14,7 +13,6 @@
         padding: 20px;
       }
 
-      /* Input & Button Styles */
       input,
       button {
         width: 100%;
@@ -26,14 +24,12 @@
         border-radius: 4px;
       }
 
-      /* Dark-gray background for input, light-gray text */
       input {
         background-color: #32325d;
         color: #ced4da;
         outline: none;
       }
 
-      /* Button with dark-gray background and hover effect */
       button {
         background-color: #00bf9a;
         color: #ffffff;
@@ -42,15 +38,13 @@
       }
 
       button:hover {
-        background-color: #00f2c3; /* Slightly lighter on hover */
+        background-color: #00f2c3; 
       }
 
-      /* Container for the transaction result */
       #result {
         margin-top: 10px;
       }
 
-      /* Card for asset details */
       .asset-card {
         background-color: #32325d;
         color: #ced4da;
@@ -59,13 +53,11 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
       }
 
-      /* Card title color and spacing */
       .asset-card h2 {
         margin-top: 0;
         color: #ced4da;
       }
 
-      /* Card paragraphs spacing */
       .asset-card p {
         margin: 8px 0;
       }
@@ -75,7 +67,6 @@
     <input type="text" id="txnId" placeholder="Enter Transaction ID" />
     <button id="searchBtn">Search</button>
     <pre id="result"></pre>
-    <!-- Load Axios locally (ensure axios.min.js is in the same folder) -->
     <script src="axios.min.js"></script>
     <script type="module" src="popup.js"></script>
   </body>

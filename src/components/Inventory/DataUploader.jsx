@@ -139,7 +139,6 @@ function DataUploader() {
 
     await Promise.all(promises);
 
-    // Convert sets to arrays before storing in Firestore
     for (const key in monthlyTransactionCounts) {
       monthlyTransactionCounts[key].products = Array.from(
         monthlyTransactionCounts[key].products
@@ -203,7 +202,6 @@ function DataUploader() {
 
         await Promise.all(promises);
 
-        // Convert Sets to Arrays
         for (const key in monthlyTransactionCounts) {
           monthlyTransactionCounts[key].products = Array.from(
             monthlyTransactionCounts[key].products

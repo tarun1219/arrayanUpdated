@@ -22,14 +22,12 @@ export default function ContactUs() {
   function handleSubmit(e) {
     e.preventDefault();
 
-    // Validate that both fields are filled
     if (!email || !message) {
       setError("Please fill in all fields");
       return;
     }
     setError("");
 
-    // Construct the mailto link
     const subject = encodeURIComponent("Contact Us Message");
     const body = encodeURIComponent(`Message: ${message}\n\nFrom: ${email}`);
     window.location.href = `mailto:ttiwari.tarun@gmail.com?subject=${subject}&body=${body}`;

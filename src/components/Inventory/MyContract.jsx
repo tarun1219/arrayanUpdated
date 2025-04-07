@@ -17,7 +17,6 @@ export default function MyContract() {
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Get current date string in YYYY-MM-DD format
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -25,7 +24,7 @@ export default function MyContract() {
       if (!userKeys?.publicKey) return;
 
       try {
-        // Query the smartContracts collection where the signerPublicKey matches the userKeys.publicKey
+
         const snapshot = await firestoreDB
           .collection("smartContracts")
           .where("signerPublicKey", "==", userKeys.publicKey)
@@ -34,7 +33,6 @@ export default function MyContract() {
         const filteredContracts = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
-          // Filter to include only active contracts (endDate is today or later)
           if (data.endDate >= today) {
             filteredContracts.push({ id: doc.id, ...data });
           }
@@ -55,7 +53,7 @@ export default function MyContract() {
     <div
       className="wrapper"
       style={{
-        paddingTop: "100px", // Pushes content below fixed navbar
+        paddingTop: "100px", 
         minHeight: "100vh",
         backgroundColor: "#f8f9fa",
       }}

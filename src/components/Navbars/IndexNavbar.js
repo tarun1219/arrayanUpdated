@@ -141,7 +141,7 @@ export default function IndexNavbar() {
                 data-placement="bottom"
                 tag={Link} to="/smartcontract"
               >
-                <i className="tim-icons icon-single-02" />
+                <i className="tim-icons icon-notes" />
                 <p className="font-weight-bold">My Contract</p>
               </NavLink>
             </NavItem>
@@ -150,7 +150,7 @@ export default function IndexNavbar() {
                 data-placement="bottom"
                 tag={Link} to="/contactus"
               >
-                <i className="tim-icons icon-single-02" />
+                <i className="tim-icons icon-email-85" />
                 <p className="font-weight-bold">Contact Us</p>
               </NavLink>
             </NavItem>
