@@ -47,13 +47,11 @@ function ProductTracker() {
     let claimedTxnIds = [];
     let industryMap = {};
     let monthlyTransactionCounts = {}; 
-    console.log("claimedItems", claimedItems);
     try {
       const promises = Object.values(finalSelected).map(async (item) => {
         const txn = constructTransaction(metadata, item)
-        console.log(txn, "txn");
+        const query = POST_UPDATED_TRANSACTION(txn);
         const res = await sendRequest(POST_UPDATED_TRANSACTION(txn));
-        console.log("res", res);
         const industry = product;
         const transactionId = res?.data?.postTransaction?.id;
         if (transactionId) {
@@ -78,15 +76,12 @@ function ProductTracker() {
 
       await Promise.all(promises);
       await saveTransactionsToFirestore(metadata.signerPublicKey, industryMap, monthlyTransactionCounts);
-      console.log("product for detele claim", product, claimedTxnIds);
       await deleteClaimedTransactionIds(product, claimedTxnIds);
 
       setConfirmedItems((prevState) => ({
         ...prevState,
         ...Object.fromEntries(claimedItems.map((key) => [key, true])),
       }));
-
-      console.log('Claimed Objects:', claimedItems);
       if (Object.keys(manualSelectedKeys).length !== 0) {
         alert(`Claim Successful!`);
       }
@@ -119,8 +114,6 @@ function ProductTracker() {
         break;
       }
     }
-  
-    console.log("Computed autoSelected:", autoSelected);
     setAutoSelectedKeys(autoSelected);
     if (Object.keys(autoSelected).length > 0) {
       handleConfirmClaim(autoSelected);
@@ -144,14 +137,12 @@ function ProductTracker() {
       } else {
         updatedState[item.key] = item;
       }
-      console.log("Updated manualSelectedKeys:", updatedState);
       return updatedState;
     });
   };
 
   const handleConfirmClaim = async (localAutoSelected = null) => {
     const finalSelected = localAutoSelected || { ...autoSelectedKeys, ...manualSelectedKeys };
-    console.log("finalSelected:", finalSelected);
     const claimedItems  = Object.keys(finalSelected);
   
     if (claimedItems.length === 0) {
@@ -177,10 +168,8 @@ function ProductTracker() {
 
   const fetchTransactionIds = async () => {
     const productRef = firestoreDB.collection('products').doc(product);
-    console.log("productRef", productRef);
     try {
       const doc = await productRef.get();
-      console.log("doc", doc);
 
       if (doc.exists) {
         const productData = doc.data();
@@ -205,8 +194,6 @@ function ProductTracker() {
 
       for(const id of txnIds){
         const res = await sendRequest(GET_TRANSACTION(id));
-        console.log("res", res);
-        console.log("id trans", id);
         if(res && res.data) {
           let info = res.data.getTransaction.asset.data;
           let recipientPublicKey = res?.data?.getTransaction.signerPublicKey;

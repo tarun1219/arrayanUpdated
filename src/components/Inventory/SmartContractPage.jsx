@@ -112,7 +112,6 @@ export default function SmartContractPage() {
       const fetchedContracts = await fetchSmartContractsFromFirestore(
         metadata.signerPublicKey
       );
-      console.log("Fetched smart contracts:", fetchedContracts);
       setContracts(fetchedContracts);
       setCurrentPage(1);
     } catch (error) {

@@ -48,9 +48,9 @@ export const constructTransaction = (metadata, item) => {
     signerPublicKey: "${metadata?.signerPublicKey}",
     signerPrivateKey: "${metadata?.signerPrivateKey}",
     recipientPublicKey: "${item.recipientPublicKey}",,
-     asset: """{
-      "data": ${JSON.stringify(updatedAsset)}
-    }"""
+     asset: {
+      data: ${JSON.stringify(updatedAsset).replace(/"([^"]+)":/g, '$1:').replace(/,(\s*[}\]])/g, '$1')}
+    }
     }`;  
 }
 

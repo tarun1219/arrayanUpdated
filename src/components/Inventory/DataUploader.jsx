@@ -44,7 +44,6 @@ function DataUploader() {
     signerPrivateKey: userKeys?.privateKey,
     recipientPublicKey: "ECJksQuF9UWi3DPCYvQqJPjF6BqSbXrnDiXUjdiVvkyH",
   };
-  console.log("setUserKey", userKeys);
 
   const [forms, setForms] = useState([initialFormState]);
   const [inventory, setInventory] = useState([]);
@@ -56,14 +55,13 @@ function DataUploader() {
   useEffect(() => {
     const fetchInventory = async () => {
       if (Array.isArray(txnIds) && txnIds.length > 0) {
+        console.log(txnIds);
         setLoading(true);
         let json = [];
         try {
           for (const id of txnIds) {
             const res = await sendRequest(GET_TRANSACTION(id));
             if (res && res.data) {
-              // console.log("Asset value:", res.data.getTransaction.asset);
-              // console.log("Type of asset:", typeof res.data.getTransaction.asset);
               let info = res.data.getTransaction.asset.data;
               json.push(info);;
             }
@@ -114,11 +112,9 @@ function DataUploader() {
       const res = await sendRequest(
         POST_TRANSACTION(metadata, JSON.stringify(dataItem))
       );
-      console.log("response ", res);
 
       const industry = dataItem["Industry"];
       const transactionId = res?.data?.postTransaction?.id;
-      console.log(transactionId);
       if (transactionId) {
         if (!txnData[industry]) {
           txnData[industry] = [];
@@ -153,29 +149,6 @@ function DataUploader() {
 
     await fetchTxn();
   };
-
-  function toGraphQLLiteral(obj) {
-    if (typeof obj === "string") {
-      // Wrap string values in quotes
-      return `"${obj}"`;
-    } else if (typeof obj === "number" || typeof obj === "boolean") {
-      return String(obj);
-    } else if (obj instanceof Date) {
-      // Convert Date to ISO string and wrap in quotes
-      return `"${obj.toISOString()}"`;
-    } else if (Array.isArray(obj)) {
-      // Recursively convert each element in the array
-      return `[${obj.map(toGraphQLLiteral).join(", ")}]`;
-    } else if (typeof obj === "object" && obj !== null) {
-      // For objects, recursively convert key/value pairs without quoting keys
-      const fields = Object.entries(obj)
-        .map(([key, value]) => `${key}: ${toGraphQLLiteral(value)}`)
-        .join(", ");
-      return `{ ${fields} }`;
-    }
-    return null;
-  }
-  
 
   const readExcel = async (e) => {
     e.preventDefault();
