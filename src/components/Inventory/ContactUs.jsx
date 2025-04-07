@@ -30,7 +30,7 @@ export default function ContactUs() {
 
     const subject = encodeURIComponent("Contact Us Message");
     const body = encodeURIComponent(`Message: ${message}\n\nFrom: ${email}`);
-    window.location.href = `mailto:ttiwari.tarun@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:arrayan.resilientdb@gmail.com?subject=${subject}&body=${body}`;
   }
 
   return (
