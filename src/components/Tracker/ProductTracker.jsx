@@ -87,7 +87,9 @@ function ProductTracker() {
       }));
 
       console.log('Claimed Objects:', claimedItems);
-      alert(`Claim Successful!`);
+      if (Object.keys(manualSelectedKeys).length !== 0) {
+        alert(`Claim Successful!`);
+      }
     } catch (error) {
 
     }
@@ -135,7 +137,6 @@ function ProductTracker() {
   };
 
   const handleCheckboxChange = (item) => {
-    // Update only manual selection
     setManualSelectedKeys((prevState) => {
       const updatedState = { ...prevState };
       if (updatedState[item.key]) {
@@ -152,11 +153,13 @@ function ProductTracker() {
     const finalSelected = localAutoSelected || { ...autoSelectedKeys, ...manualSelectedKeys };
     console.log("finalSelected:", finalSelected);
     const claimedItems  = Object.keys(finalSelected);
+  
     if (claimedItems.length === 0) {
       alert('Please select at least one item to claim.');
       toggleModal();
       return;
     }
+  
     await updateFireStore(claimedItems, finalSelected);
     toggleModal();
   };
@@ -202,6 +205,8 @@ function ProductTracker() {
 
       for(const id of txnIds){
         const res = await sendRequest(GET_TRANSACTION(id));
+        console.log("res", res);
+        console.log("id trans", id);
         if(res && res.data) {
           let info = res.data.getTransaction.asset.data;
           let recipientPublicKey = res?.data?.getTransaction.signerPublicKey;
