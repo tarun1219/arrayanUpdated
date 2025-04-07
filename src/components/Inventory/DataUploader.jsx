@@ -40,10 +40,11 @@ function DataUploader() {
   ];
 
   const metadata = {
-    signerPublicKey: 'DTgSm732rjREpv94esTk9pc6v5DrZFyU9hp3kw2BohRc',
-    signerPrivateKey: '5R4ER6smR6c6fsWt3unPqP6Rhjepbn82Us7hoSj5ZYCc',
-    recipientPublicKey: 'ECJksQuF9UWi3DPCYvQqJPjF6BqSbXrnDiXUjdiVvkyH',
+    signerPublicKey: userKeys?.publicKey,
+    signerPrivateKey: userKeys?.privateKey,
+    recipientPublicKey: "ECJksQuF9UWi3DPCYvQqJPjF6BqSbXrnDiXUjdiVvkyH",
   };
+  console.log("setUserKey", userKeys);
 
   const [forms, setForms] = useState([initialFormState]);
   const [inventory, setInventory] = useState([]);
@@ -153,6 +154,29 @@ function DataUploader() {
     await fetchTxn();
   };
 
+  function toGraphQLLiteral(obj) {
+    if (typeof obj === "string") {
+      // Wrap string values in quotes
+      return `"${obj}"`;
+    } else if (typeof obj === "number" || typeof obj === "boolean") {
+      return String(obj);
+    } else if (obj instanceof Date) {
+      // Convert Date to ISO string and wrap in quotes
+      return `"${obj.toISOString()}"`;
+    } else if (Array.isArray(obj)) {
+      // Recursively convert each element in the array
+      return `[${obj.map(toGraphQLLiteral).join(", ")}]`;
+    } else if (typeof obj === "object" && obj !== null) {
+      // For objects, recursively convert key/value pairs without quoting keys
+      const fields = Object.entries(obj)
+        .map(([key, value]) => `${key}: ${toGraphQLLiteral(value)}`)
+        .join(", ");
+      return `{ ${fields} }`;
+    }
+    return null;
+  }
+  
+
   const readExcel = async (e) => {
     e.preventDefault();
     let selectedFile = e.target.files[0];
@@ -171,13 +195,12 @@ function DataUploader() {
         });
 
         const promises = json.map(async (dataItem) => {
-          console.log(dataItem);
           dataItem["Timestamp"] = new Date(dataItem["Timestamp"]);
-          console.log("JSON Stringify", JSON.stringify(dataItem));
-          const res = await sendRequest(
-            POST_TRANSACTION(metadata, JSON.stringify(dataItem))
-          );
-          console.log("response", res);
+          const assetData = JSON.stringify(dataItem)
+                            .replace(/"([^"]+)":/g, '$1:')
+                            .replace(/,(\s*[}\]])/g, '$1');
+          const mutationQuery = POST_TRANSACTION(metadata, assetData);
+          const res = await sendRequest(mutationQuery);
 
           const industry = dataItem["Industry"];
           const transactionId = res?.data?.postTransaction?.id;

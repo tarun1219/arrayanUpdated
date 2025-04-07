@@ -20,8 +20,6 @@ import {
 import { AuthContext } from "./../../context/AuthContext";
 import { sendRequest } from "./../../utils/ResDbClient";
 import { POST_TRANSACTION } from "./../../utils/ResDbApis";
-import { deleteClaimedTransactionIds, saveTransactionsToFirestore } from "../../context/FirestoreContext";
-import { GET_TRANSACTION, POST_UPDATED_TRANSACTION, constructTransaction } from "./../../utils/ResDbApis";
 import {
   saveSmartContractToFirestore,
   fetchSmartContractsFromFirestore,
@@ -45,10 +43,10 @@ export default function SmartContractPage() {
   const today = new Date().toISOString().split("T")[0];
 
   const metadata = {
-    signerPublicKey: "DTgSm732rjREpv94esTk9pc6v5DrZFyU9hp3kw2BohRc",
-    signerPrivateKey: "5R4ER6smR6c6fsWt3unPqP6Rhjepbn82Us7hoSj5ZYCc",
-    recipientPublicKey: "ECJksQuF9UWi3DPCYvQqJPjF6BqSbXrnDiXUjdiVvkyH",
-  };  
+    signerPublicKey: userKeys?.publicKey,
+    signerPrivateKey: userKeys?.privateKey,
+    recipientPublicKey: process.env.REACT_APP_RECIPIENT_PUBLIC_KEY,
+  }; 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -77,15 +75,13 @@ export default function SmartContractPage() {
     Timestamp: new Date(),
   };
 
-  console.log("dataItem fr", dataItem)
-
   try {
-    // Submit the smart contract transaction
-    const res = await sendRequest(
-      POST_TRANSACTION(metadata, JSON.stringify(dataItem))
-    );
+    const assetData = JSON.stringify(dataItem)
+                            .replace(/"([^"]+)":/g, '$1:')
+                            .replace(/,(\s*[}\]])/g, '$1');
+    const mutationQuery = POST_TRANSACTION(metadata, assetData);
+    const res = await sendRequest(mutationQuery);
     const transactionId = res?.data?.postTransaction?.id;
-    console.log("Transaction ID:", transactionId);
 
     // Save the smart contract to Firestore
     await saveSmartContractToFirestore(metadata.signerPublicKey, dataItem);

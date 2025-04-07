@@ -38,10 +38,10 @@ function ProductTracker() {
   const navigate = useNavigate();
 
   const metadata = {
-    signerPublicKey: "DTgSm732rjREpv94esTk9pc6v5DrZFyU9hp3kw2BohRc",
-    signerPrivateKey: "5R4ER6smR6c6fsWt3unPqP6Rhjepbn82Us7hoSj5ZYCc",
-    recipientPublicKey: "ECJksQuF9UWi3DPCYvQqJPjF6BqSbXrnDiXUjdiVvkyH",
-  };
+    signerPublicKey: userKeys?.publicKey,
+    signerPrivateKey: userKeys?.privateKey,
+    recipientPublicKey: process.env.REACT_APP_RECIPIENT_PUBLIC_KEY,
+  }; 
 
   const updateFireStore = async (claimedItems, finalSelected) => {
     let claimedTxnIds = [];

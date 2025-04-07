@@ -14,10 +14,9 @@ export const POST_TRANSACTION = (metadata, asset) => `mutation {
   signerPublicKey: "${metadata?.signerPublicKey}",
   signerPrivateKey: "${metadata?.signerPrivateKey}",
   recipientPublicKey: "${metadata?.recipientPublicKey}",
-  asset: """{
-    "data": ${asset},    
+  asset: {
+    data: ${asset},    
   }
-  """
   }){
   id
   }
