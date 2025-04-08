@@ -42,7 +42,7 @@ function DataUploader() {
   const metadata = {
     signerPublicKey: userKeys?.publicKey,
     signerPrivateKey: userKeys?.privateKey,
-    recipientPublicKey: "ECJksQuF9UWi3DPCYvQqJPjF6BqSbXrnDiXUjdiVvkyH",
+    recipientPublicKey: userKeys?.publicKey,
   };
 
   const [forms, setForms] = useState([initialFormState]);

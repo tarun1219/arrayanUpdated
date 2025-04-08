@@ -40,7 +40,7 @@ function ProductTracker() {
   const metadata = {
     signerPublicKey: userKeys?.publicKey,
     signerPrivateKey: userKeys?.privateKey,
-    recipientPublicKey: process.env.REACT_APP_RECIPIENT_PUBLIC_KEY,
+    recipientPublicKey: userKeys?.publicKey,
   }; 
 
   const updateFireStore = async (claimedItems, finalSelected) => {
