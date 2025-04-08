@@ -6,8 +6,9 @@
     "default_popup": "popup.html",
     "default_title": "Search Transaction"
   },
-  "permissions": ["activeTab"],
-  "host_permissions": ["https://cloud.resilientdb.com/*"],
+  "host_permissions": [
+    "https://cloud.resilientdb.com/*"
+  ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   }
